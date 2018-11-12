@@ -19,7 +19,7 @@ $transfer-item-prefix-cls: "#{$css-prefix}transfer-list-content-item";
     }
 
     &-header {
-      padding: 8px 16px;
+      padding: 8px 12px;
       background: $head-bg;
       color: $text-color;
       border: 1px solid $border-color-base;
@@ -43,6 +43,9 @@ $transfer-item-prefix-cls: "#{$css-prefix}transfer-list-content-item";
       &-count {
         margin: 0 !important;
         float: right;
+      }
+      .head-clear{
+        cursor: pointer;
       }
     }
 
@@ -75,7 +78,17 @@ $transfer-item-prefix-cls: "#{$css-prefix}transfer-list-content-item";
         text-overflow: ellipsis;
 
         & > span{
-          padding-left: 4px;
+          //padding-left: 4px;
+        }
+        &>.delete-icon{
+          display: none;
+          float: right;
+        }
+      }
+      &-item:hover{
+        background: $table-td-hover-bg;
+        &>.delete-icon{
+          display: block;
         }
       }
 
@@ -142,7 +155,7 @@ $transfer-item-prefix-cls: "#{$css-prefix}transfer-list-content-item";
 @include select-item($transfer-prefix-cls, $transfer-item-prefix-cls);
 
 .#{$transfer-item-prefix-cls}:hover {
-    background: transparent;
+    background: #EAF5FF;
 }
 
 

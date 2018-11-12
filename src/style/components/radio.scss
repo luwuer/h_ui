@@ -7,6 +7,7 @@ $radio-group-button-prefix-cls: "#{$radio-group-prefix-cls}-button";
     display: inline-block;
     font-size: $font-size-base;
     vertical-align: middle;
+    height: $form-component-height;
     &-vertical{
         .#{$radio-prefix-cls}-wrapper {
             display: block;
@@ -38,7 +39,7 @@ $radio-group-button-prefix-cls: "#{$radio-group-prefix-cls}-button";
 
 .#{$radio-prefix-cls} {
     display: inline-block;
-    margin-right: 4px;
+    margin-right: 8px;
     white-space: nowrap;
     outline: none;
     position: relative;
@@ -47,7 +48,7 @@ $radio-group-button-prefix-cls: "#{$radio-group-prefix-cls}-button";
     cursor: pointer;
     &:hover {
         .#{$radio-inner-prefix-cls} {
-            border-color: #bcbcbc;
+            border-color: $primary-color;
         }
     }
     &-inner {
@@ -222,7 +223,12 @@ span.#{$radio-prefix-cls} + * {
             color: $primary-color;
         }
 
-        .#{$radio-prefix-cls}-inner,
+        .#{$radio-prefix-cls}-inner {
+            // opacity: 0;
+            display: none;
+            width: 0;
+            height: 0;
+        }
         input {
             opacity: 0;
             width: 0;
@@ -276,6 +282,16 @@ span.#{$radio-prefix-cls} + * {
             border-color: $border-color-base;
             box-shadow: none!important;
         }
+        // btn 带按钮--o45
+        .#{$radio-prefix-cls}-btnIcon.#{$radio-prefix-cls} {
+            width: 18px;
+            .#{$radio-prefix-cls}-inner {
+                // opacity: 1;
+                display: inline-block;
+                width: 14px;
+                height: 14px;
+            }
+        }
     }
 }
 
@@ -283,6 +299,15 @@ span.#{$radio-prefix-cls} + * {
     height: $btn-circle-size-large;
     line-height: $btn-circle-size-large - 2px;
     font-size: $font-size-base;
+    .#{$radio-prefix-cls}-btnIcon.#{$radio-prefix-cls} {
+        width: 20px;
+        .#{$radio-prefix-cls}-inner {
+            // opacity: 1;
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+        }
+    }
 }
 
 .#{$radio-group-button-prefix-cls}.#{$radio-group-prefix-cls}-small .#{$radio-prefix-cls}-wrapper{
@@ -295,5 +320,14 @@ span.#{$radio-prefix-cls} + * {
     }
     &:last-child {
         border-radius: 0 $btn-border-radius-small $btn-border-radius-small 0;
+    }
+    .#{$radio-prefix-cls}-btnIcon.#{$radio-prefix-cls} {
+        width: 16px;
+        .#{$radio-prefix-cls}-inner {
+            // opacity: 1;
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+        }
     }
 }

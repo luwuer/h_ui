@@ -11,9 +11,7 @@ $menu-collapse-prefix-cls: "#{$css-prefix}menu-collapse";
   color: $text-color;
   font-size: $font-size-base;
   position: relative;
-  .iconfont{
-    font-size: 14px;
-  }
+
   &-horizontal{
     height: 60px;
     line-height: 60px;
@@ -47,12 +45,22 @@ $menu-collapse-prefix-cls: "#{$css-prefix}menu-collapse";
       }
     }
   }
+  &-verti-side{
+    .#{$menu-prefix-cls}{
+      .#{$menu-prefix-cls}{
+        position: absolute;
+        left: 100%;
+        width: 240px;
+        top:0;
+      }
+    }
+  }
 
   &-light{
     background: #fff;
   }
   &-dark{
-    background: $title-color;
+    background:  #1C232F;
   }
   &-primary{
     background: $primary-color;
@@ -181,12 +189,9 @@ $menu-collapse-prefix-cls: "#{$css-prefix}menu-collapse";
   }
 
   &-vertical &-submenu-title-icon{
-    // float: right;
-    // position: relative;
-    // top: 4px;
     position: absolute;
     right: 15px;
-    top: 10px
+    top: 12px
   }
   &-submenu-title-icon {
     transition: transform $transition-time $ease-in-out;
@@ -201,6 +206,16 @@ $menu-collapse-prefix-cls: "#{$css-prefix}menu-collapse";
   &-vertical &-submenu &-item{
     padding-left: 43px;
   }
+  &-verti-side &-submenu &-submenu{
+    position: relative;
+  }
+  &-verti-side &-submenu &-submenu &-submenu-title{
+    padding-left:43px;
+  }
+  &-verti-side &-submenu &-submenu &-submenu-title>&-submenu-title-icon{
+    -webkit-transform: rotate(-90deg);
+  }
+
   // 三级目录
   &-vertical &-submenu &-submenu &-item{
     padding-left: 63px;
@@ -266,10 +281,16 @@ $menu-collapse-prefix-cls: "#{$css-prefix}menu-collapse";
   &-dark.#{$menu-prefix-cls}-vertical &-opened{
     background: $menu-dark-active-bg;
     .#{$menu-prefix-cls}-submenu-title{
-        background: $title-color;
+        // background: $title-color;
+        background:  #1C232F;
+    }
+    .#{$menu-prefix-cls}{
+      // background: $title-color;
+      background:  #0D121E;
     }
     .#{$menu-prefix-cls}-submenu .#{$menu-prefix-cls}-submenu-title {
-       background : $menu-dark-active-bg;
+      //  background : $menu-dark-active-bg;
+      background:  #0D121E;
     }
   }
 
@@ -301,6 +322,7 @@ $menu-collapse-prefix-cls: "#{$css-prefix}menu-collapse";
     z-index: 10;
     width: 240px;
   }
+
   &-collapse.#{$menu-prefix-cls}-dark > &-submenu &{
     background: #1a2229;
   }

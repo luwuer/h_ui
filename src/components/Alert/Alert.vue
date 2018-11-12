@@ -80,16 +80,16 @@ export default {
 
       switch (this.type) {
         case 'success':
-          type = 'success';
+          type = 'success_fill';
           break;
         case 'info':
-          type = 'prompt';
+          type = 'prompt_fill';
           break;
         case 'warning':
-          type = 'warning';
+          type = 'warning_fill';
           break;
         case 'error':
-          type = 'delete';
+          type = 'delete_fill';
           break;
       }
 

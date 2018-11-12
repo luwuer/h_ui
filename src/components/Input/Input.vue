@@ -18,6 +18,7 @@
         :value="currentValue"
         :number="number"
         :autofocus="autofocus"
+        :spellcheck="spellcheck"
         @keyup.enter="handleEnter"
         @keyup="handleKeyup"
         @keypress="handleKeypress"
@@ -41,6 +42,7 @@
       :name="name"
       :value="currentValue"
       :autofocus="autofocus"
+      :spellcheck="spellcheck"
       @keyup.enter="handleEnter"
       @keyup="handleKeyup"
       @keypress="handleKeypress"
@@ -50,19 +52,36 @@
       @input="handleInput"
       @change="handleChange">
     </textarea>
+    <div v-if="type=='password'&&strengthTip" :class="`${prefixCls}-tips`">
+      <ul>
+        <li>
+          <div :class="weakClass"></div>
+          {{this.t('i.input.weak')}}
+        </li>
+        <li>
+          <div :class="generalClass"></div>
+          {{this.t('i.input.general')}}
+        </li>
+        <li>
+          <div :class="complexClass"></div>
+          {{this.t('i.input.complex')}}
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 <script>
   import { oneOf, findComponentsUpward } from '../../util/tools';
   import calcTextareaHeight from '../../util/calcTextareaHeight';
   import Emitter from '../../mixins/emitter';
+  import Locale from '../../mixins/locale';
   import Icon from '../Icon/Icon.vue'
 
   const prefixCls = 'h-input';
 
   export default {
     name: 'Input',
-    mixins: [ Emitter ],
+    mixins: [ Emitter,Locale ],
     components:{Icon},
     props: {
       type: {
@@ -123,6 +142,22 @@
         type:String,
         default:'left',
       },
+      strengthTip:{
+        type:Boolean,
+        default:false
+      },
+      tipState:{
+        type:String,
+        default:null,
+      },
+      spellcheck:{
+        type:Boolean,
+        default:false,
+      },
+      canResize:{
+        type:Boolean,
+        default:true
+      }
     },
     data () {
       return {
@@ -131,7 +166,7 @@
         prepend: true,
         append: true,
         slotReady: false,
-        textareaStyles: {}
+        textareaStyles: {},
       };
     },
     computed: {
@@ -140,7 +175,7 @@
           `${prefixCls}-wrapper`,
           {
             [`${prefixCls}-wrapper-${this.size}`]: !!this.size,
-            [`${prefixCls}-type`]: this.type,
+            [`${prefixCls}-type`]: this.type!='textarea',
             [`${prefixCls}-group`]: this.prepend || this.append,
             [`${prefixCls}-group-${this.size}`]: (this.prepend || this.append) && !!this.size,
             [`${prefixCls}-group-with-prepend`]: this.prepend,
@@ -165,9 +200,25 @@
         return [
           `${prefixCls}`,
           {
-              [`${prefixCls}-disabled`]: this.disabled
+            [`${prefixCls}-disabled`]: this.disabled,
+            [`${prefixCls}-noresize`]:!this.canResize,  
           }
         ];
+      },
+      weakClass(){
+        return{
+          [`${prefixCls}-tips-weak`]:this.tipState=='weak'||this.tipState=='general'||this.tipState=='complex',
+        }
+      },
+      generalClass(){
+        return{
+          [`${prefixCls}-tips-general`]:this.tipState=='general'||this.tipState=='complex',
+        }
+      },
+      complexClass(){
+        return{
+          [`${prefixCls}-tips-complex`]:this.tipState=='complex',
+        }
       }
     },
     methods: {

@@ -1,31 +1,33 @@
 <template>
   <div :class="wrapCls">
-    <div
-      :class="classes"
-      @click="handleClick"
-      @drop.prevent="onDrop"
-      @dragover.prevent="dragOver = true"
-      @dragleave.prevent="dragOver = false">
-      <input
-        ref="input"
-        type="file"
-        :class="[prefixCls + '-input']"
-        @change="handleChange"
-        :multiple="multiple"
-        :accept="accept">
-      <!-- 手动配置 -->
-      <slot v-if="selfConfig" name="chooseFile"></slot>
-      <slot v-else></slot>
-    </div>
-    <slot name="tip"></slot>
-    <div  v-if="selfConfig" @click="handlePostFile" :class="postBtnCls">
-      <slot name="postFile" ></slot>
-    </div>    
-    <div  v-if="selfConfig && $slots.cancleFile" @click="handleCancleFile" :class="cancleBtncls">
-      <slot name="cancleFile" @click="handleCancleFile"></slot>
-    </div>
-    <div  v-if="selfConfig " @click="handleFileList" :class="listBtnCls">
-      <slot name="showList"></slot>
+    <div :class="wrapperCls">
+      <div
+        :class="classes"
+        @click="handleClick"
+        @drop.prevent="onDrop"
+        @dragover.prevent="dragOver = true"
+        @dragleave.prevent="dragOver = false">
+        <input
+          ref="input"
+          type="file"
+          :class="[prefixCls + '-input']"
+          @change="handleChange"
+          :multiple="multiple"
+          :accept="accept">
+        <!-- 手动配置 -->
+        <slot v-if="selfConfig" name="chooseFile"></slot>
+        <slot v-else></slot>
+      </div>
+      <slot name="tip"></slot>
+      <div  v-if="selfConfig" @click="handlePostFile" :class="postBtnCls">
+        <slot name="postFile" ></slot>
+      </div>    
+      <div  v-if="selfConfig && $slots.cancleFile" @click="handleCancleFile" :class="cancleBtncls">
+        <slot name="cancleFile" @click="handleCancleFile"></slot>
+      </div>
+      <div  v-if="selfConfig " @click="handleFileList" :class="listBtnCls">
+        <slot name="showList"></slot>
+      </div>
     </div>
 
     <upload-list
@@ -178,7 +180,11 @@ export default {
     selfConfig: {
       type: Boolean,
       default: false
-    }
+    },
+    uploadAll: { // selfConfig下使用
+      type: Boolean,
+      default: false
+    },
   },
   data () {
     return {
@@ -190,12 +196,19 @@ export default {
       xhr:'',
       uploadedFileList: [], // 已上传列表
       showUploadedList: false, // 是否显示已上传列表
+      selfConfPostList: [], //手动上传时，保存真正的文件列表
+      fileNoneStatus: '',// 全部上传时的待上传文件selfConfPostList清空时的状态 success/error/clear（成功/失败/清除后清空）
+      isFirstChoose: true //是否第一次选择文件
     };
   },
   computed: {
     wrapCls () {
       return [
-          `${prefixCls}`,
+          `${prefixCls}`
+        ]
+    },
+    wrapperCls () {
+      return [
           {
             [`${prefixCls}-self`]: this.selfConfig
           }
@@ -237,13 +250,23 @@ export default {
   methods: {
     handlePostFile () {
       if(this.showUploadedList) this.showUploadedList = false
-      this.fileList.forEach(file => {
-        if(file.status !== 'finished'){
-          this.startPost(file)
-        }
-      })
+      if (this.uploadAll) {
+        // 全部上传或者全部取消
+        this.startPost(this.selfConfPostList)
+      } else {
+        this.selfConfPostList.forEach((file, index) => {
+          // 过滤已上传的
+          const _file = this.getFile(file);
+          if(_file.status !== 'finished'){
+            this.startPost(file)
+          } else {
+            this.selfConfPostList.splice(index, 1) // 删除已上传
+          }
+        })
+      }
     },
-    handleCancleFile () {
+    // 取消上传
+    handleCancleFile () { 
       if(this.xhr) this.xhr.abort()
       this.xhr =''
       this.fileList = this.fileList.filter((file, index) => {
@@ -288,7 +311,7 @@ export default {
       if (!this.multiple) postFiles = postFiles.slice(0, 1);
 
       if (postFiles.length === 0) return;
-
+      // 全部上传
       postFiles.forEach(file => {
         this.upload(file);
           
@@ -336,6 +359,7 @@ export default {
       this.handleStart(file);
       // 手动控制，校验完文件显示待上传列表
       if(this.selfConfig) {
+        if (this.selfConfPostList.length > 0) this.isFirstChoose = false
         if(this.showUploadedList) this.showUploadedList = false
         if(file.status === "finished") {
           file.isShow = false
@@ -354,6 +378,7 @@ export default {
         headers: this.headers,
         withCredentials: this.withCredentials,
         file: file,
+        uploadAll: this.uploadAll && file instanceof Array,
         data: this.data,
         filename: this.name,
         action: this.action,
@@ -380,6 +405,7 @@ export default {
         isShow: true
       };
       this.fileList.push(_file);
+      if (this.selfConfig) this.selfConfPostList.push(file)
     },
     getFile (file) {
       const fileList = this.fileList;
@@ -390,14 +416,26 @@ export default {
       });
       return target;
     },
-    handleProgress (e, file) {
-      const _file = this.getFile(file);
-      this.onProgress(e, _file, this.fileList);
-      _file.percentage = e.percent || 0;
+    handleRemovePostFile (file) {
+      const fileList = this.selfConfPostList;
+      fileList.splice(fileList.indexOf(file), 1);
+      
     },
-    handleSuccess (res, file) {
-      const _file = this.getFile(file);
-
+    handleProgress (e, file) {
+      if (file instanceof Array) {
+        file.forEach(item => {
+          let _file = this.getFile(item);
+          this.onProgress(e, _file, this.fileList);
+          _file.percentage = e.percent || 0;
+        })
+      } else {
+        const _file = this.getFile(file);
+        this.onProgress(e, _file, this.fileList);
+        _file.percentage = e.percent || 0;
+      }
+    },
+    handleSuccessFile (res, file) {
+      const _file = this.getFile(file)
       if (_file) {
         _file.status = 'finished';
         _file.response = res;
@@ -409,25 +447,58 @@ export default {
           _file.showProgress = false;
         }, 1000);
         if(this.selfConfig && this.$slots.showList) {
+          if (!this.uploadAll) this.handleRemovePostFile(_file) // 删除待上传列表中的文件
           _file.isShow = false
           this.uploadedFileList.push(_file)
         }
       }
     },
+    handleSuccess (res, file) {
+      // 全部上传的情况
+       if (file instanceof Array) {
+        file.forEach(item => {
+          this.handleSuccessFile(res, item)
+        })
+        this.fileNoneStatus = 'success'
+        this.isFirstChoose = true
+        this.selfConfPostList = []
+      } else {
+        this.handleSuccessFile(res, file)
+      }
+    },
     handleError (err, response, file) {
-      const _file = this.getFile(file);
-      const fileList = this.fileList;
+      if (file instanceof Array) { // 全部上传不成功时返回一个错误消息，全部删除
+        file.forEach((item, index) => {
+          let _file = this.getFile(item);
+          _file.status = 'fail';
+          this.onError(err, response, file);
+        })
+        this.fileList = []
+        this.fileNoneStatus = 'error'
+        this.isFirstChoose = true        
+        this.selfConfPostList = []
+      } else {
+        const _file = this.getFile(file);
+        const fileList = this.fileList;
 
-      _file.status = 'fail';
+        _file.status = 'fail';
 
-      fileList.splice(fileList.indexOf(_file), 1);
-
-      this.onError(err, response, file);
+        fileList.splice(fileList.indexOf(_file), 1);
+        this.handleRemovePostFile(file)
+        this.onError(err, response, file);
+      }
     },
     handleRemove(file) {
       const fileList = this.fileList;
       fileList.splice(fileList.indexOf(file), 1);
-      this.onRemove(file, fileList);
+      if (this.selfConfPostList.length > 0) {
+        this.selfConfPostList = this.selfConfPostList.filter(item => item.uid != file.uid)
+        if (this.selfConfPostList.length == 0) {
+          this.isFirstChoose = true
+          this.fileNoneStatus = 'clear'
+        }
+      }
+      this.onRemove(file, fileList)
     },
     handleUploadedRemove(file) {
       const uploadedList = this.uploadedFileList;
@@ -442,7 +513,10 @@ export default {
       }
     },
     clearFiles() {
-      this.fileList = [];
+      this.fileList = []
+      this.fileNoneStatus = 'clear'
+      this.isFirstChoose = true      
+      this.selfConfPostList = []
     }
   },
   watch: {
@@ -474,6 +548,15 @@ export default {
           });
         }
       }
+    },
+    isFirstChoose (newVal, oldVal) {
+      if (this.selfConfig && this.uploadAll) { // 在手动一键上传所有时监听
+          if (!newVal && oldVal && this.selfConfPostList.length > 0) {
+            this.$emit('on-goto-add', true) // true表示继续添加--理财销售5.0
+          } else if (newVal && !oldVal && this.selfConfPostList.length == 0){
+            this.$emit('on-file-none', this.fileNoneStatus) //待上传文件数组为空时返回状态--理财销售5.0
+          }
+        }
     }
   },
   mounted () {

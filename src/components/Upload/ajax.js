@@ -38,7 +38,7 @@ export default function upload(option) {
       option.onProgress(e);
     };
   }
-
+  
   const formData = new FormData();
 
   if (option.data) {
@@ -46,9 +46,15 @@ export default function upload(option) {
       formData.append(key, option.data[key]);
     });
   }
-
-  formData.append(option.filename, option.file);
-
+  if (option.uploadAll && option.file instanceof Array) {
+    // 上传所有
+    option.file.forEach((item, index) => {
+      formData.append(option.filename, item);
+    })
+  } else {
+    formData.append(option.filename, option.file);
+  }
+  
   xhr.onerror = function error(e) {
     option.onError(e);
   };

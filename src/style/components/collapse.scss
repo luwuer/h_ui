@@ -1,12 +1,12 @@
 $collapse-prefix-cls: "#{$css-prefix}collapse";
 
 .#{$collapse-prefix-cls}{
-  background-color: $background-color-base;
+  //background-color: $background-color-base;
   border-radius: 3px;
   border: 1px solid $border-color-base;
 
   & > &-item{
-    border-top: 1px solid $border-color-base;
+    border-top: 1px solid #DCE1E7;
     &:first-child {
         border-top: 0;
     }
@@ -14,13 +14,18 @@ $collapse-prefix-cls: "#{$css-prefix}collapse";
     > .#{$collapse-prefix-cls}-header{
       height: 38px;
       line-height: 38px;
-      padding-left: 32px;
+      padding-left: 18px;
       color: #666;
       cursor: pointer;
       position: relative;
+      font-weight: 700;
+      font-family: MicrosoftYaHei-Bold;
+      font-size: 14px;
+      text-align: left;
 
       > i{
         display: inline-block;
+        color:  #9EA7B4;
         transition: transform $transition-time $ease-in-out;
       }
     }
@@ -33,12 +38,21 @@ $collapse-prefix-cls: "#{$css-prefix}collapse";
     //display: none;
     overflow: hidden;
     color: $text-color;
-    padding: 0 16px;
-    background-color: #fff;
+    padding: 0 18px;
+    background-color: #FAFAFA;
+    border-top: 1px solid #DCE1E7;
 
     & > &-box {
         padding-top: 16px;
         padding-bottom: 16px;
+
+        > p{
+          font-family: MicrosoftYaHei;
+          font-size: 12px;
+          color: #495060;
+          text-align: left;
+          line-height: 20px;
+        }
     }
   }
   &-item-active > &-content{

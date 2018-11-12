@@ -2,12 +2,13 @@
   <table cellspacing="0" cellpadding="0" border="0" :style="styles">
   <!-- 签用于对表格中的列进行组合，以便对其进行格式化。 -->
     <colgroup>
-      <col v-for="(column, index) in columns" :width="setCellWidth(column, index, true)">
+      <col v-for="(column, index) in columns" :width="setCellWidth(column, index, true)" :key="index">
     </colgroup>
     <thead>
       <tr>
         <th v-for="(column, index) in columns"
           :class="alignCls(column)" 
+          :key="index"
           >
           <div :class="cellClasses(column)">
             <template v-if="column.type === 'expand'"></template>
@@ -36,7 +37,7 @@ import Mixin from './mixin';
 import Locale from '../../mixins/locale';
 
 export default {
-  name: 'TableHead',
+  name: 'GirdHead',
   mixins: [ Mixin, Locale ],
   components: {CheckboxGroup, Checkbox,hButton, renderHeader,Icon},
   props: {
@@ -44,8 +45,18 @@ export default {
     styleObject: Object,
     columns: Array,
     objData: Object,
-    data: Array,    // rebuildData for sort or filter
+    data: {
+      type: Array,
+      default: () => {
+        return []
+      }
+    },
+    // data: Array,    // rebuildData for sort or filter
     columnsWidth: Object,
+    fixed: {
+      type: [Boolean, String],
+      default: false
+    },
   },
   data(){
     return{

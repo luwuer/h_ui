@@ -14,6 +14,7 @@ $confirm-prefix-cls: "#{$css-prefix}modal-confirm";
 
   &-wrap {
       position: fixed;
+      // position:absolute;
       overflow: auto;
       top: 0;
       right: 0;
@@ -22,6 +23,7 @@ $confirm-prefix-cls: "#{$css-prefix}modal-confirm";
       // z-index: $zindex-modal;
       -webkit-overflow-scrolling: touch;
       outline: 0;
+      user-select: none;
   }
 
   &-wrap * {
@@ -49,12 +51,16 @@ $confirm-prefix-cls: "#{$css-prefix}modal-confirm";
   &-close {
     @include content-close(1px, 31px);
   }
+  &-maximize {
+    @include content-maximise(-1px, 16px);
+  }
 
   &-body {
-    padding: 16px;
+    padding: 32px 32px 16px 32px;
     font-size: 12px;
     line-height: 1.5;
     & p {
+      color: #7E828A;
       font-size: $font-size-small; 
     }
   }
@@ -86,23 +92,52 @@ $confirm-prefix-cls: "#{$css-prefix}modal-confirm";
   padding: 0 4px;
   &-head {
 
+    &-icon {
+      position: absolute;
+      top: 16px;
+      left: 32px;
+      & i {
+        font-size: 36px;
+      }
+
+      &-info {
+          color: $primary-color;
+      }
+      &-success {
+          color: $success-color;
+      }
+      &-warning {
+          color: $warning-color;
+      }
+      &-error {
+          color: $error-color;
+      }
+      &-confirm {
+          color: $warning-color;
+      }
+    }
+
     &-title {
       display: inline-block;
       font-size: $font-size-base;
       color: $title-color;
       font-weight: 700;
+      margin-left: 38px;
     }
   }
 
   &-body{
-    padding-left: 48px;
-    padding-top: 18px;
+    font-family: MicrosoftYaHei;
     font-size: $font-size-small;
-    color: $text-color;
+    color: #7E828A;
+    text-align: left;
+    line-height: 20px;
+    padding-left: 38px;
+    padding-top: 18px;
     position: relative;
 
     &-render{
-      margin: 0;
+      margin: 16px 0 0 0;
       padding: 0;
     }
 

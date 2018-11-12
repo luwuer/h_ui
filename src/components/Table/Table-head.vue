@@ -2,14 +2,20 @@
   <table cellspacing="0" cellpadding="0" border="0" :style="styles" ref="tHead">
   <!-- 签用于对表格中的列进行组合，以便对其进行格式化。 -->
     <colgroup>
-      <col v-for="(column, index) in columns" :width="setCellWidth(column, index, true)">
+      <col v-for="(column, index) in columns" :width="setCellWidth(column, index, true)" :key="index">
     </colgroup>
     <thead>
-      <tr>
+      <tr v-if="multiLevel" v-for="(colItem,inx) in multiData" :key="inx">
+        <th v-for="(multi, index) in colItem" :colspan="multi.cols||1" :key="index" :class="aliCls(multi)">
+          <div :class="[prefixCls+'-cell']"><span>{{multi.title}}</span></div>
+        </th>
+      </tr>
+      <tr class="cur-th">
         <th v-for="(column, index) in columns"
           v-on:mousedown="mousedown($event,column,index)" 
           v-on:mouseout="mouseout($event,column,index)" 
           v-on:mousemove="mousemove($event,column,index)"
+          :key="index"
           :class="alignCls(column)" 
           >
           <div :class="cellClasses(column)">
@@ -24,8 +30,6 @@
               <span :class="[prefixCls + '-sort']" v-if="column.sortable">
                 <Icon name="android-arrow-dropup" :class="{on: column._sortType === 'asc'}" @on-click="handleSort(index, 'asc')" @mousedown.native.stop="handleClick"></Icon>
                 <Icon name="android-arrow-dropdo" :class="{on: column._sortType === 'desc'}" @on-click="handleSort(index, 'desc')" @mousedown.native.stop="handleClick"></Icon>
-                  <!-- <i class="ivu-icon ivu-icon-arrow-up-b" :class="{on: column._sortType === 'asc'}" @click="handleSort(index, 'asc')"></i> -->
-                 <!--  <i class="ivu-icon ivu-icon-arrow-down-b" :class="{on: column._sortType === 'desc'}" @click="handleSort(index, 'desc')"></i> -->
               </span>
               <Poptip
                 v-if="isPopperShow(column)"
@@ -35,7 +39,7 @@
                 <span :class="[prefixCls + '-filter']">
                   <Icon name="keyboard" @mousedown.native.stop="handleClick" :class="{on: column._isFiltered}"></Icon>
                 </span>
-                <div slot="content" :class="[prefixCls + '-filter-list']" v-if="column._filterMultiple">
+                <div slot="content" :class="[prefixCls + '-filter-list']" v-if="column._filterMultiple" @mousedown="handleClick">
                   <div :class="[prefixCls + '-filter-list-item']">
                     <checkbox-group v-model="column._filterChecked">
                       <checkbox v-for="(item,i) in column.filters" :key="column._columnKey+i" :label="item.value">{{ item.label }}</checkbox>
@@ -46,7 +50,7 @@
                     <h-button type="text" size="small" @click.native="handleReset(index)">{{ t('i.table.resetFilter') }}</h-button>
                   </div>
                 </div>
-                <div slot="content" :class="[prefixCls + '-filter-list']" v-else>
+                <div slot="content" :class="[prefixCls + '-filter-list']" v-else @mousedown="handleClick">
                   <ul :class="[prefixCls + '-filter-list-single']">
                     <li
                       :class="itemAllClasses(column)"
@@ -73,7 +77,7 @@ import Poptip from '../Poptip/Poptip.vue';
 import hButton from '../Button/Button.vue';
 import renderHeader from './header';
 import { on, off } from '../../util/dom';
-import {getScrollBarSize,hasClass,addClass,removeClass} from '../../util/tools';
+import {getScrollBarSize,hasClass,addClass,removeClass,typeOf} from '../../util/tools';
 import Mixin from './mixin';
 import Locale from '../../mixins/locale';
 
@@ -95,6 +99,9 @@ export default {
     canDrag:Boolean,
     canMove:Boolean,
     headAlgin:String,
+    lastColWidth:[Number,String],
+    minDragWidth:[Number,String],
+    multiLevel:Array,
   },
   data(){
     return{
@@ -105,6 +112,7 @@ export default {
       moveState: {},
       moveing:false,
       cloumnsLeft:{},
+      multiData:null,
     }
   },
   computed: {
@@ -116,19 +124,26 @@ export default {
     },
     isSelectAll () {
       let isSelectAll = true;
+      let allDisable = true;
       if (!this.data.length) isSelectAll = false;
       for (let i = 0; i < this.data.length; i++) {
         if (!this.objData[this.data[i]._index]._isChecked && !this.objData[this.data[i]._index]._isDisabled) {
           isSelectAll = false;
           break;
         }
+        if(!this.objData[this.data[i]._index]._isDisabled){
+          allDisable = false;
+        }
       }
+      if(isSelectAll&&allDisable) isSelectAll = false;
       return isSelectAll;
     }
   },
   mounted(){
-     this.getLeftWidth();
-     on(window, 'resize', this.getLeftWidth);
+    this.getLeftWidth();
+    //  this.changeMultiData(this.multiLevel);
+    this.multiData = this.multiLevel;
+    on(window, 'resize', this.getLeftWidth);
   },
   methods: {
     cellClasses (column) {
@@ -219,7 +234,7 @@ export default {
         const tableLeft = tableEl.getBoundingClientRect().left;
         const columnEl = this.$el.querySelector(`th.h-ui-${column.key}`);
         const columnRect = columnEl.getBoundingClientRect();
-        const minLeft = columnRect.left - tableLeft + 30;
+        const minLeft = columnRect.left - tableLeft + this.minDragWidth;
 
         let lastWidth =this.findObj(event,"TR").lastChild.offsetWidth;
         let tableWidth = this.$el.parentElement.offsetWidth-1;
@@ -256,7 +271,7 @@ export default {
             const columnWidth = finalLeft - startColumnLeft;
             let dragWidth = finalLeft - startLeft;//>0为输入框增大，<0为减小
             if (dragWidth>=0) {
-              lastWidth = (lastWidth-dragWidth)>=80?(lastWidth-dragWidth):80;
+              lastWidth = (lastWidth-dragWidth)>=this.lastColWidth?(lastWidth-dragWidth):this.lastColWidth;
             }else{
               if (headWidth+1>=tableWidth) {//此时有滚动条
                 if (headWidth+1+dragWidth<=tableWidth) {
@@ -293,6 +308,7 @@ export default {
       }
       if(this.moveingColumn){
         this.moveing = true;  
+         addClass(document.body, 'useSelect');
         this.$parent.moveProxyVisible = true;
         let dom = this.findObj(event,'TH').cloneNode(true);
         dom.width = column._width;
@@ -345,7 +361,7 @@ export default {
           if (_this.moveing) {
             table.sortCloumn(index,resizeIndex,column._index);
             document.body.style.cursor = '';
-            document.body.style.userSelect = 'text';
+            removeClass(document.body, 'useSelect');
             _this.moveing = false;
             _this.moveingColumn = null;
             _this.moveState = {};
@@ -356,8 +372,6 @@ export default {
 
           document.removeEventListener('mousemove', handleMouseMove);
           document.removeEventListener('mouseup', handleMouseUp);
-          // document.onselectstart = null;
-          // document.ondragstart = null;
 
           setTimeout(function() {
             removeClass(columnEl, 'noclick');
@@ -401,11 +415,11 @@ export default {
         const bodyStyle = document.body.style;
         if (rect.right - event.pageX > 8 && rect.right - event.pageX<rect.width) {
           bodyStyle.cursor = 'pointer';
-          bodyStyle.userSelect = 'none';
+          // bodyStyle.userSelect = 'none';
           this.moveingColumn = column;
         } else if (!this.moveing) {
           if(!this.canDrag) bodyStyle.cursor = '';
-          bodyStyle.userSelect = 'text';
+          // bodyStyle.userSelect = 'text';
           this.moveingColumn = null;
         }
       }
@@ -424,6 +438,14 @@ export default {
     handleClick (event) {
       event.stopPropagation();
     },
+    aliCls(item){
+      return[
+        {
+          [`${item.className}`]: item.className,
+          [`${this.prefixCls}-column-${item.align}`]: item.align,
+        }
+      ]
+    }
   },
   watch:{
     columns:{
@@ -431,7 +453,13 @@ export default {
       handler(){
         this.getLeftWidth();
       }
+    },
+    multiLevel(val){
+      this.multiData = this.multiLevel;
     }
+  },
+  beforeDestroy(){
+    off(window, 'resize', this.getLeftWidth);
   }
 };
 </script>

@@ -313,10 +313,14 @@
                     const otherPanel = panel === 'left' ? 'right' : 'left';
                     const type = currentViewType === 'year-table' ? 'FullYear' : 'Month';
                     this[`${otherPanel}PanelDate`] = value;
-                    this.changePanelDate(otherPanel, type, 1);
+                    this.changePanelDate(otherPanel, type, panel=='left'?1:-1);
                 }
             },
             handleRangePick (val) {
+                if(this.showTwoPanel){
+                    this.$emit('on-pick',val)
+                    return false;
+                }
                 if (this.rangeState.selecting || this.currentView === 'time'){
                     if (this.currentView === 'time'){
                         this.dates = val;

@@ -14,6 +14,7 @@
       @on-visible-change="vChange"
       :escClose="false"
       top="0"
+      isOriginal
       class-name="vertical-center-modal"
       >
       <p>对话框内容</p>
@@ -21,7 +22,7 @@
       <p>对话框内容</p>
     </h-msg-box>
     <h-button @click="modal2 = true">自定义页头和页脚</h-button>
-    <h-msg-box v-model="modal2" width="360" scrollable isBeyond>
+    <h-msg-box v-model="modal2" width="360" scrollable isBeyond isOriginal>
       <p slot="header" style="color:#f60;text-align:center">
         <h-icon name="prompt"></h-icon>
         <span>删除确认</span>
@@ -47,6 +48,7 @@
         title="Modal Title"
         ok-text="OK"
         :zIndex="10001"
+        :maximize = true
         cancel-text="Cancel">
         <p>Something...</p>
         <p>Something...</p>
@@ -73,7 +75,7 @@
     <h2>自定义内容/有问题</h2>
     <h-button @click="render">自定义内容</h-button>{{value}}
     <h2>MsgBox</h2>
-    <h-msg-box v-model="showModal2" title="弹窗" width="800">
+    <h-msg-box v-model="showModal2" title="弹窗" width="800" isBeyond>
       <div style="height: 200px;" class="tabWarp">
         <h-select v-model="mulmodel" :transfer="true" style="width:400px;" multiple ref="select">
           <h-option v-for="item in options" :value="item.value" :key="item.value">{{ item.label }}</h-option>
@@ -347,6 +349,7 @@
                 width:800,
                 scrollable:true,
                 okText:'确定1',
+                zIndex:1100
                 // loading:true
             });
             break;
@@ -354,19 +357,22 @@
             this.$hMsgBox.success({
                 width:600,
                 title: title,
-                content: content
+                content: content,
+                zIndex:1200
             });
             break;
           case 'warning':
             this.$hMsgBox.warning({
                 title: title,
-                content: content
+                content: content,
+                zIndex:1300
             });
             break;
           case 'error':
             this.$hMsgBox.error({
                 title: title,
-                content: content
+                content: content,
+                zIndex:1400
             });
             break;
         }
@@ -433,7 +439,11 @@
     watch:{
       showModal2(val){
         if (val) {
-          this.$refs.select.focus();
+          // this.$refs.select.focus();
+          this.options=[{
+                value: 'beijing',
+                label: '北京市'
+            }]
         }
       }
     }

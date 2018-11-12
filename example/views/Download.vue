@@ -1,0 +1,84 @@
+<template>
+    <div>
+        {{groups}}
+        <h-checkbox-group v-model="groups">
+            <h-checkbox v-for="(item,inx) in comps" :key="inx" :label="item"></h-checkbox>
+        </h-checkbox-group>
+    </div>
+</template>
+
+<script>
+export default {
+    data(){
+        return{
+            comps:[
+                'Affix',
+                'Alert',
+                'AutoComplete',
+                'Backtop',
+                'Gobottom',
+                'Badge',
+                'Breadcrumb',
+                'Button',
+                'Card',
+                'Carousel',
+                'Cascader',
+                'Checkbox',
+                'Circle',
+                'Row',
+                'Collapse',
+                'DatePicker',
+                'Dropdown',
+                'Icon',
+                'Input',
+                'InputNumber',
+                'LoadingBar',
+                'Menu',
+                'Message',
+                'MsgBox',
+                'Notice',
+                'Page',
+                'Poptip',
+                'Progress',
+                'Radio',
+                'Select',
+                'SelectTree',
+                'Slider',
+                'Spin',
+                'Steps',
+                'Table',
+                'Tabs',
+                'Timeline',
+                'TimePicker',
+                'Tooltip',
+                'Transfer',
+                'Tree',
+                'Typefield',
+                'Upload',
+                'EditGird',
+                'GroupTable',
+                'TreeGird',
+                'AsycTreeGird',
+                'SelectTable',
+                'TableOption',
+                'FastDate',
+                'SplicePanel',   
+                'FieldPanel',
+                'SimpleTable',
+                'TransferTable',
+                'FormGird',    
+                'Rate', 
+                'Textdiff',
+                'TypefieldRange',
+                'Split',    
+                'Drawer',
+            ],
+            groups:[],
+        }
+    }
+}
+</script>
+
+<style>
+
+</style>

@@ -2,21 +2,20 @@
   <div>
     <h2>基础</h2>
     <h3>单选</h3>
-
-    <h-edit-gird :columns="columns1" :data="data1" size="small" :disabled-hover="true" :highlight-row="true" @on-current-change="click1" ref="editGird" stripe :show-header="false" :loading="loading"@on-expand="expand" :option="options1" :treeOption="treeOption" @on-editselect-change="selectchange" @on-editinput-change="selectchange" @on-editinput-blur="selectchange" @on-editarea-change="selectchange" @on-editarea-blur="selectchange" showEditInput>
+    <h-edit-gird border height="200" :columns="columns1" :data="data1" :disabled-hover="true" :highlight-row="true" @on-current-change="click1" ref="editGird" stripe :loading="loading" @on-expand="expand" :option="options1" :treeOption="treeOption" @on-editselect-change="selectchange" @on-editinput-change="selectchange" @on-editinput-blur="selectchange" @on-editarea-change="selectchange" @on-editarea-blur="selectchange">
       <p slot='loading'>我是自定义loading</p>
     </h-edit-gird>
     <Button @click="getData">获取数据</Button>
-    <!-- <Button @click="setLoad">切换loading</Button>
+    <Button @click="setLoad">切换loading</Button>
     <p>小</p>
     <h-edit-gird :columns="columns1" :data="data1" @on-current-change="click1" @on-row-click="click1" ref="editGird" width="800" no-data-text="你好呀" :loading="loading"></h-edit-gird>
     <p>中</p>
     <h-edit-gird :columns="columns1" :data="data1" size="large" :disabled-hover="true" :highlight-row="true" @on-current-change="click1" @on-select-cancel="click1" ref="editGird" stripe :loading="loading"></h-edit-gird>
     <p>大</p>
-    <Button @click="getDate">获取数据</Button>
-    <Button @click = "addDate">新增一行</Button>
-    <h3>多选</h3>
-    <h-edit-gird :columns="columns4" :data="data1" @on-select-all="allSelect" @on-select="select" :rowSelect="true" @on-select-cancel="select" height="200"></h-edit-gird>
+<!--     <Button @click="getDate">获取数据</Button>
+    <Button @click = "addDate">新增一行</Button> -->
+    <!-- <h3>多选</h3>
+    <h-edit-gird :columns="columns4" :data="data1" :showEditInput="true" @on-select-all="allSelect" @on-select="select" :rowSelect="true" @on-select-cancel="select" height="200"></h-edit-gird>
     <h-edit-gird :columns="columns4" :data="data1" @on-select-all="allSelect" @on-selection-change="selsetChange" height="200" :loading="loading"></h-edit-gird>
     <h3>直接显示编辑框</h3>
     <h-edit-gird :columns="columns1" :data="data1" size="small" :disabled-hover="true" :highlight-row="true" @on-current-change="click1" :showEditInput="true" height="200" :loading="loading"></h-edit-gird>
@@ -74,23 +73,22 @@ var tData= [
   }
 ];
 var columns=[
+        // {
+        //   type: 'expand',
+        //   width: 50,
+        //   render: (h, params) => {
+        //     return h(TexpandRow, {
+        //       props: {
+        //           row: params.row
+        //       }
+        //     })
+        //   }
+        // },
+        // {
+        //   type: 'selection',
+        //   width: 50,
+        // },
         {
-          type: 'expand',
-          width: 50,
-          render: (h, params) => {
-            return h(TexpandRow, {
-              props: {
-                  row: params.row
-              }
-            })
-          }
-        },
-        {
-          type: 'selection',
-          width: 50,
-        },
-        {
-          type: 'text',
           title: '姓名',
           key: 'name',
           width: 200,
@@ -136,18 +134,17 @@ var columns=[
             ]);
           }
         },
-        {
-          type: 'number',
-          title: '年龄',
-          width: 200,
-          key: 'age',
-          hiddenCol:false,
-          rule: { required: true, message: '年龄不能为空'},
-        },
+        // {
+        //   type: 'number',
+        //   title: '年龄',
+        //   width: 200,
+        //   key: 'age',
+        //   hiddenCol:false,
+        //   rule: { required: true, message: '年龄不能为空'},
+        // },
         {
           type: 'textArea',
-          rows: 2,
-          width: 200,
+          rows: 4,
           title: '地址',
           key: 'address',
           rule: { required: true, message: '地址不能为空'},
@@ -155,7 +152,6 @@ var columns=[
         {
           type: 'money',
           title: '金额',
-          width: 200,
           integerNum: 14,
           suffixNum: 3,
           // suffixNum: 2,
@@ -169,72 +165,64 @@ var columns=[
           key: 'cardId',
           rule: { required: true, message: '卡号不能为空'},
         },
-        {
-          type: 'select',
-          title: '地区',
-          width: 200,
-          key: 'city',
-          multiple:false,
-          transfer:true,
-          option: [
-              {value:"北京"},
-              {value:"上海"},
-              {value:"天津"},
-              {value:"沈阳"},
-              {value:"杭州"},
-              {value:"武汉"},
-          ],
-          rule:{ required: true, message: '请选择城市', trigger: 'blur,change' }
-        },
-        {
-          type: 'date',
-          title: '日期',
-          width: 200,
-          key: 'dating',
-          dateType:'date',
-          format: 'yyyy-MM-dd',
-          rule:{ required: true, message: '请选择日期', trigger: 'blur,change' }
-        },
-        {
-          type: 'time',
-          title: '时间',
-          width: 200,
-          key: 'timing',
-          dateType:'time',
-          format: 'HH:mm:ss',
-          steps: [2,2,2],
-          rule:{ required: true, message: '请选择时间', trigger: 'blur,change' }
-        },
-        {
-          type: 'selectTree',
-          title: '下拉树',
-          width: 200,
-          key: 'tree',
-          treeData:[{
-            expand: true,
-            title: 'parent 1',
-            children: [{
-              title: 'parent 1-0',
-              expand: true,
-              children: [{
-                title: 'leaf1',
-                disableCheckbox: true
-              }, {
-                title: 'leaf2',
-              }]
-            }, {
-              title: 'parent 1-1',
-              expand: true,
-              checked: true,
-              children: [{
-                title: 'leaf3',
-              }]
-            }]
-          }],
-          showCheckbox: false,
-          checkStrictly: false,
-          rule:{ required: true, message: '请选择子节点', trigger: 'blur,change' }
-        }
+        // {
+        //   type: 'select',
+        //   title: '地区',
+        //   width: 200,
+        //   key: 'city',
+        //   multiple:false,
+        //   transfer:true,
+        //   rule:{ required: true, message: '请选择城市', trigger: 'blur,change' }
+        // },
+        // {
+        //   type: 'date',
+        //   title: '日期',
+        //   width: 200,
+        //   key: 'dating',
+        //   dateType:'date',
+        //   format: 'yyyy-MM-dd',
+        //   rule:{ required: true, message: '请选择日期', trigger: 'blur,change' }
+        // },
+        // {
+        //   type: 'time',
+        //   title: '时间',
+        //   width: 200,
+        //   key: 'timing',
+        //   dateType:'time',
+        //   format: 'HH:mm:ss',
+        //   steps: [2,2,2],
+        //   rule:{ required: true, message: '请选择时间', trigger: 'blur,change' }
+        // },
+        // {
+        //   type: 'selectTree',
+        //   title: '下拉树',
+        //   width: 200,
+        //   key: 'tree',
+        //   treeData:[{
+        //     expand: true,
+        //     title: 'parent 1',
+        //     children: [{
+        //       title: 'parent 1-0',
+        //       expand: true,
+        //       children: [{
+        //         title: 'leaf1',
+        //         disableCheckbox: true
+        //       }, {
+        //         title: 'leaf2',
+        //       }]
+        //     }, {
+        //       title: 'parent 1-1',
+        //       expand: true,
+        //       checked: true,
+        //       children: [{
+        //         title: 'leaf3',
+        //       }]
+        //     }]
+        //   }],
+        //   showCheckbox: false,
+        //   checkStrictly: false,
+        //   rule:{ required: true, message: '请选择子节点', trigger: 'blur,change' }
+        // }
       ]
 import TexpandRow from './Texpand-row.vue'
 export default {
@@ -244,6 +232,7 @@ export default {
       columns1: [
         {
           type: 'expand',
+          fixed: 'left',
           width: 50,
           render: (h, params) => {
             return h(TexpandRow, {
@@ -258,6 +247,7 @@ export default {
           title: '姓名',
           key: 'name',
           width: 200,
+          typeWidth:100,
           rule: { required: true, message: '姓名不能为空'},
           render: (h, params) => {
             return h('div', [
@@ -279,7 +269,8 @@ export default {
           }
         },
         {
-          width:80,
+          width:100,
+          typeWidth:0,
           render: (h, params) => {
             return h('div', [
               h('h-button', {
@@ -308,8 +299,8 @@ export default {
           rule: { required: true, message: '年龄不能为空'},
         },
         {
-          type: 'textArea',
-          rows: 2,
+          // type: 'textArea',
+          // rows: 2,
           width: 200,
           title: '地址',
           key: 'address',
@@ -345,6 +336,8 @@ export default {
           key: 'city',
           multiple:false,
           option:[],
+          placement:'top',
+          dropWidth:300,
           rule:{ required: true, message: '请选择城市', trigger: 'blur,change' }
         },
         {
@@ -353,6 +346,8 @@ export default {
           width: 200,
           key: 'dating',
           dateType:'date',
+          placement:'top',
+          transfer:true,
           format: 'yyyy-MM-dd',
           rule:{ required: true, message: '请选择日期', trigger: 'blur,change' }
         },
@@ -360,6 +355,8 @@ export default {
           type: 'time',
           title: '时间',
           width: 200,
+          transfer:true,
+          placement:'top',
           key: 'timing',
           dateType:'time',
           format: 'HH:mm:ss',
@@ -371,6 +368,7 @@ export default {
           title: '下拉树',
           width: 200,
           key: 'tree',
+          fixed:'right',
           showCheckbox: false,
           checkStrictly: false,
           rule:{ required: true, message: '请选择子节点', trigger: 'blur,change' }
@@ -469,7 +467,7 @@ export default {
   },
   mounted(){
     // this.data1=tData
-    this.treeOption[10]=[{
+    this.treeOption[0]=this.treeOption[10]=this.treeOption[9]=[{
               expand: true,
               title: 'parent 1',
               children: [{
@@ -490,7 +488,7 @@ export default {
                 }]
               }]
             }]
-    this.options1[7]=[{value:'Alabama',label:'Alabama'},{value:'beijing',label:'北京'},{value:'Delaware',label:'Delaware'}]
+    this.options1[7] =this.options1[6]=[{value:'Alabama',label:'Alabama'},{value:'beijing',label:'北京'},{value:'Delaware',label:'Delaware'}]
     const list = this.list.map(item => {
         return {
             value: item,

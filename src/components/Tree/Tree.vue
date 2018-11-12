@@ -1,5 +1,5 @@
 <template>
-  <div :class="prefixCls">
+  <div :class="wrapper">
     <Tree-node
       v-for="(item,i) in stateTree"
       :key="i"
@@ -10,6 +10,7 @@
       :showIndeterminate="showIndeterminate"
       :checkStrictly="checkStrictly"
       :disableHover = "disableHover"
+      :selectToCheck="selectToCheck"
       >
     </Tree-node>
     <div :class="[prefixCls + '-empty']" v-if="!data.length">{{ localeEmptyText }}</div>
@@ -17,7 +18,7 @@
 </template>
 <script>
   import TreeNode from './Node.vue';
-  import { findComponentsDownward } from '../../util/tools';
+  import { findComponentsDownward,deepCopy } from '../../util/tools';
   import Emitter from '../../mixins/emitter';
   import Locale from '../../mixins/locale';
 
@@ -73,37 +74,39 @@
         // }
         type: Object,
       },
+      isAlwaysSelect: {
+        type:Boolean,
+        default:false
+      },
+      isFormSelect: {
+        type:Boolean,
+        default:false
+      },
+      isBoxRight:{
+        type:Boolean,
+        default:false
+      },
+      selectToCheck:{
+        type:Boolean,
+        default:false
+      }
     },
     data () {
       return {
         prefixCls: prefixCls,
-        stateTree: this.data,
+        isDeepcopy:false,
         flatState: [],
+        stateTree: this.isDeepcopy?this.data:deepCopy(this.data),
       };
     },
-    watch:{
-      data: {
-        deep: true,
-        handler () {
-            this.stateTree = this.data;
-            this.flatState = this.compileFlatState();
-            this.rebuildTree();
-        }
-      },
-      currentPageInfo: {
-        handler: function (val) {
-          if (val && val.nodeKey >= 0 && val.page) {           
-            let node = this.flatState[val.nodeKey].node;
-            if (node.hasPage) {
-              this.$set(node, 'currentPage', val.page);
-              if(!node.expand) this.$set(node, 'expand', true);
-            }
-          }
-        },
-        deep: true
-      }
-    },
     computed: {
+      wrapper(){
+        return[
+          `${prefixCls}`,{
+            [`${prefixCls}-isBoxRight`]: this.isBoxRight,
+          }
+        ]
+      },
       localeEmptyText () {
         if (this.emptyText === undefined) {
           return this.t('i.tree.emptyText');
@@ -118,12 +121,20 @@
         const flatTree = [];
         function flattenChildren(node, parent) {
             node.nodeKey = keyCounter++;
+            ['expand','disabled','disableCheckbox','selected','checked','loading','leaf','autoLoad','hasPage'].forEach(col=>{
+              if(node[col]&&node[col]=='false'){
+                node[col] =false;
+              }
+              if(node[col]&&node[col]=='true'){
+                node[col] =true;
+              }
+            })
+
             flatTree[node.nodeKey] = { node: node, nodeKey: node.nodeKey };
             if (typeof parent != 'undefined') {
                 flatTree[node.nodeKey].parent = parent.nodeKey;
                 flatTree[parent.nodeKey].children.push(node.nodeKey);
             }
-
             if (node.children) {
                 flatTree[node.nodeKey].children = [];
                 node.children.forEach(child => flattenChildren(child, node));
@@ -173,17 +184,24 @@
       getSelectedNodes () {
         return this.flatState.filter(obj => obj.node.selected).map(obj => obj.node);
       },
-      getCheckedNodes () {
-        return this.flatState.filter(obj => obj.node.checked).map(obj => obj.node);
+      getCheckedNodes (indeterminate = false) {
+        // FOF需求：调用getCheckedNodes方法，indeterminate为true时返回全部选中节点(checked)[包括checked为true及indeterminate为true的节点]，indeterminate为false时仅返回选中节点[checked为true];indeterminate默认为false
+        return this.flatState.filter(obj => {
+          return obj.node.checked || (indeterminate ? obj.node.indeterminate : false)
+        }).map(obj => obj.node)
+        // return this.flatState.filter(obj => obj.node.checked).map(obj => obj.node);
       },
       getAutoLoadNodes () {
-        return this.flatState.filter(obj => obj.node.autoLoad).map(obj => obj.node);
+        return this.flatState.filter(obj => obj.node.autoLoad&&obj.node.autoLoad!='false').map(obj => obj.node);
+      },
+      getIndeterminateNodes (){
+        return this.flatState.filter(obj => obj.node.indeterminate).map(obj => obj.node);
       },
       updateTreeDown(node, changes = {}) {
         for (let key in changes) {
           this.$set(node, key, changes[key]);
         }
-        // 如果当前节点leaf属性为true，则返回当前节点        
+        // 如果当前节点leaf属性为true，则返回当前节点  
         if (node.children && !this.checkStrictly && !node.leaf) {
           node.children.forEach(child => {
               this.updateTreeDown(child, changes);
@@ -196,7 +214,9 @@
           const currentSelectedKey = this.flatState.findIndex(obj => obj.node.selected);
           if (currentSelectedKey >= 0 && currentSelectedKey !== nodeKey) this.$set(this.flatState[currentSelectedKey].node, 'selected', false);
         }
-        this.$set(node, 'selected', !node.selected);
+        if(!(this.isAlwaysSelect && node.selected)) {
+          this.$set(node, 'selected', !node.selected);
+        }
         this.$emit('on-select-change', this.getSelectedNodes());
       },
       handleCheck({ checked, nodeKey }) {
@@ -208,7 +228,31 @@
           this.updateTreeDown(node, {checked, indeterminate: false}); // reset `indeterminate` when going down
         } 
         this.$emit('on-check-change', this.getCheckedNodes());
-      }
+      },
+      nodeSelect(key,value,status=true){
+        let nodeIndex;
+        function findNode(node) {
+          if(node[key]&&node[key]==value){
+            nodeIndex = node.nodeKey;
+            return false;
+          }
+          if (node.children) {
+            node.children.forEach(child => {
+              if(!nodeIndex&&nodeIndex!=0){
+                findNode(child);
+              }
+            });
+          }
+        }
+        this.stateTree.forEach(rootNode => {
+          findNode(rootNode);
+        });
+        const node = this.flatState[nodeIndex].node;
+        this.$set(node, 'selected', status);
+      },
+      nodeCheck(){
+
+      },
     },
     created(){
       this.flatState = this.compileFlatState();
@@ -218,6 +262,35 @@
       this.$on('on-check', this.handleCheck);
       this.$on('on-selected', this.handleSelect);
       this.$on('toggle-expand', node => this.$emit('on-toggle-expand', node));
-    }
+      if(this.loadData||this.isFormSelect){
+        this.isDeepcopy = true;
+        this.stateTree = this.isDeepcopy?this.data:deepCopy(this.data);
+      }
+      // this.flatState = this.compileFlatState();
+      // this.rebuildTree();
+    },
+    watch:{
+      data: {
+        deep: true,
+        handler () {
+            this.stateTree = this.isDeepcopy?this.data:deepCopy(this.data);
+            this.flatState = this.compileFlatState();
+            this.rebuildTree();
+        }
+      },
+      currentPageInfo: {
+        handler: function (val) {
+          if (val && val.nodeKey >= 0 && val.page) {           
+            let node = this.flatState[val.nodeKey].node;
+            if (node.hasPage&&node.hasPage!="false") {
+              this.$set(node, 'currentPage', val.page);
+              if(!node.expand || node.expand=='false') this.$set(node, 'expand', true);
+            }
+          }
+        },
+        deep: true
+      }
+    },
+    
   };
 </script>

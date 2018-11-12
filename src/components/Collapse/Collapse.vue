@@ -15,7 +15,11 @@
       },
       value: {
           type: [Array, String]
-      }
+      },
+      noContentBox:  {
+          type: Boolean,
+          default: false
+      },
     },
     data () {
       return {

@@ -5,7 +5,7 @@
     <h-dropdown @on-click="click" @on-visible-change="tog">
       <a href="javascript:void(0)">
         下拉菜单
-        <h-icon name="arrowdownb"></h-icon>
+        <h-icon name="unfold"></h-icon>
       </a>
       <h-dropdown-menu slot="list">
           <h-dropdown-item>驴打滚</h-dropdown-item>
@@ -18,7 +18,7 @@
     <h-dropdown style="margin-left: 20px">
       <h-button type="primary">
           下拉菜单
-          <h-icon name="arrowdownb"></h-icon>
+          <h-icon name="unfold"></h-icon>
       </h-button>
       <h-dropdown-menu slot="list">
           <h-dropdown-item>驴打滚</h-dropdown-item>
@@ -34,7 +34,7 @@
     <h-dropdown>
       <a href="javascript:void(0)">
         hover 触发
-        <h-icon type="arrowdownb"></h-icon>
+        <h-icon type="unfold"></h-icon>
       </a>
       <h-dropdown-menu slot="list">
         <h-dropdown-item>驴打滚</h-dropdown-item>
@@ -47,7 +47,7 @@
     <h-dropdown trigger="click" style="margin-left: 20px">
       <a href="javascript:void(0)">
         click 触发
-        <h-icon type="arrowdownb"></h-icon>
+        <h-icon type="unfold"></h-icon>
       </a>
       <h-dropdown-menu slot="list">
         <h-dropdown-item>驴打滚</h-dropdown-item>
@@ -60,7 +60,7 @@
     <h-dropdown trigger="custom" :visible="visible" style="margin-left: 20px">
       <a href="javascript:void(0)" @click="handleOpen">
         custom 触发
-        <h-icon type="arrowdownb"></h-icon>
+        <h-icon type="unfold"></h-icon>
       </a>
       <h-dropdown-menu slot="list">
         <p>常用于各种自定义下拉内容的场景。</p>
@@ -74,7 +74,7 @@
     <h-dropdown  placement="bottom-start">
       <a href="javascript:void(0)">
         菜单左
-        <h-icon type="arrowdownb"></h-icon>
+        <h-icon type="unfold"></h-icon>
       </a>
       <h-dropdown-menu slot="list">
         <h-dropdown-item>驴打滚</h-dropdown-item>
@@ -87,7 +87,7 @@
     <h-dropdown style="margin-left:20px;">
       <a href="javascript:void(0)">
         菜单居中
-        <h-icon type="arrowdownb"></h-icon>
+        <h-icon type="unfold"></h-icon>
       </a>
       <h-dropdown-menu slot="list">
         <h-dropdown-item>驴打滚</h-dropdown-item>
@@ -100,7 +100,7 @@
     <h-dropdown  placement="bottom-end" style="margin-left:20px;">
       <a href="javascript:void(0)">
         菜单右
-        <h-icon type="arrowdownb"></h-icon>
+        <h-icon type="unfold"></h-icon>
       </a>
       <h-dropdown-menu slot="list">
         <h-dropdown-item>驴打滚</h-dropdown-item>
@@ -115,7 +115,7 @@
     <h-dropdown>
       <a href="javascript:void(0)">
         北京小吃
-        <h-icon name="arrowdownb"></h-icon>
+        <h-icon name="unfold"></h-icon>
       </a>
       <h-dropdown-menu slot="list">
         <h-dropdown-item>驴打滚</h-dropdown-item>
@@ -124,7 +124,7 @@
         <h-dropdown placement="right-start">
           <h-dropdown-item>
             北京烤鸭
-            <h-icon name="play_fill"></h-icon>
+            <h-icon name="enter"></h-icon>
           </h-dropdown-item>
           <h-dropdown-menu slot="list">
               <h-dropdown-item>挂炉烤鸭</h-dropdown-item>

@@ -1,12 +1,12 @@
 <template>
   <div :class="itemClasses">
     <div :class="headerClasses" @click="toggle">
-      <Icon name="play_fill"></Icon>
+      <Icon name="ios-arrow-right"></Icon>
       <slot></slot>
     </div>
     <collapse-transition>
       <div :class="contentClasses" v-show="isActive">
-        <div :class="boxClasses"><slot name="content"></slot></div>
+        <div :class="boxClasses" v-show="isShowBox"><slot name="content"></slot></div>
       </div>
     </collapse-transition>
   </div>
@@ -27,7 +27,8 @@
     data () {
       return {
         index: 0, // use index for default when name is null
-        isActive: false
+        isActive: false,
+        isShowBox: this.$parent.noContentBox ? false : true
       };
     },
     computed: {
@@ -49,6 +50,17 @@
             return `${prefixCls}-content-box`;
         }
     },
+    updated() {
+      if (this.isActive && this.$parent.noContentBox) {
+        this.$nextTick(() => {
+          if (this.$slots.content && (this.$slots.content [0].elm.children.length > 0 || this.$slots.content [0].elm.innerText)){
+            this.isShowBox = true
+          } else {
+            this.isShowBox = false
+          }
+        })
+      }
+    },
     methods: {
       toggle () {
         this.$parent.toggle({
@@ -56,6 +68,14 @@
           isActive: this.isActive
         });
       }
-    }
+    },
+    mounted () {
+      // slot content 内容为空或者content 不存在
+      if (this.$parent.noContentBox) {
+        if (this.$slots.content && (this.$slots.content[0].elm.innerText || this.$slots.content[0].elm.children.length > 0)) {
+          this.isShowBox = true
+        }
+      }
+    },
   };
 </script>

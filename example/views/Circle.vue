@@ -4,12 +4,12 @@
 		<h-circle :percent="80">
       <span class="demo-Circle-inner" style="font-size:24px">80%</span>
     </h-circle>
-    <h-circle :percent="100" stroke-color="#5cb85c">
-      <h-icon name="right" size="60" style="color:#5cb85c"></h-icon>
+    <h-circle :percent="100" stroke-color="#1ABE6B">
+      <h-icon name="right" size="60" style="color:#1ABE6B"></h-icon>
     </h-circle>
     <h-circle :percent="35" stroke-color="#ff5500">
       <span class="demo-Circle-inner">
-        <h-icon name="close" size="50" style="color:#ff5500"></h-icon>
+        <h-icon name="alert" size="50" style="color:#ff5500"></h-icon>
       </span>
     </h-circle>
     <h2>配合外部组件使用</h2>

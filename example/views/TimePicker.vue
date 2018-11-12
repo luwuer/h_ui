@@ -4,7 +4,7 @@
       <h-time-picker v-model="val" format="HH’mm’ss" type="timerange" placement="bottom-end" placeholder="选择时间" size="large" :steps= "[2, 15,10]"  style="width:200px"></h-time-picker>
       {{val}}
       <h2>基本用法</h2>
-      <p>设置属性 type 为 time 或 timerange 分别显示选择单个时间和选择范围时间类型</br>
+      <p>设置属性 type 为 time 或 timerange 分别显示选择单个时间和选择范围时间类型<br>
         设置属性 placement 可以更改选择器出现的方向</p>
       <h-col span="12">
         <h-time-picker v-model="val1" type="time" placeholder="选择时间" style="width: 168px"></h-time-picker>

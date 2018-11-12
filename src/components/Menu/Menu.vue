@@ -103,8 +103,17 @@ export default {
     collapse: {
       type: Boolean,
       default: false
-    }
+    },
+    shrinkClose: {
+      type: Boolean,
+      default: false,
+    },
     // --collapse--
+    // 只在 mode="vertical" 时有效,三级菜单侧面展开
+    vertiSide:{
+      type:Boolean,
+      default:false,
+    }
   },
   data () {
     return {
@@ -122,7 +131,8 @@ export default {
         `${prefixCls}-${theme}`,
         {
           [`${prefixCls}-${this.mode}`]: this.mode,
-          [`${prefixCls}-collapse`]: this.collapse
+          [`${prefixCls}-collapse`]: this.collapse,
+          [`${prefixCls}-verti-side`]: this.vertiSide && !this.collapse,
         }
       ];
     },
@@ -183,6 +193,13 @@ export default {
     openName () {
       this.$emit('on-open-change',this.openName);
     },
+    openNames:{
+      deep:true,
+      handler(){
+        this.openName = this.openNames;
+        this.updateOpened();
+      }
+    },
     activeName (val) {
       this.currentActiveName = val;
     },
@@ -193,6 +210,9 @@ export default {
     collapse(value) {
       this.openedMenu = [];
       this.openName = [];
+      if(value && this.shrinkClose){
+        this.broadcast("Submenu", 'on-collapse-close');
+      }
     }
     // --collapse--
   }

@@ -11,22 +11,23 @@
       :transfer="transfer"
       :format="format"
       :options="options"
-      :placement="placement"
+      :placement="fPlacement"
+      autoPlacement
       @on-change="handleChange"
       @on-clear="handleClear"
       @on-ok="handleOk">
-      <div :class="innerClass">
+      <div :class="innerClass" ref="inner">
         <div :class="classSingle" @click="handleSingleClick" @keydown="changeFocus($event,false)" ref="single">
           <span>
-            <DateInput ref="year" v-model="year" type="year" :readonly="readonly" :disabled="disabled"  @focus="rangeSelect" @blur="editBlur($event,'year',false)" :style="yearStyle" :class="yearClass" :placeholder="yearPlaceholder"></DateInput>
+            <DateInput ref="year" v-model="year" @on-change-focus="change(1)" type="year" :readonly="readonly" :disabled="disabled"  @focus="rangeSelect" @blur="editBlur($event,'year',false)" :style="yearStyle" :class="yearClass" :placeholder="yearPlaceholder"></DateInput>
           </span>
           <span v-show="year||months||day">{{dateSplit}}</span>
           <span v-show="year||months||day">
-            <DateInput v-model="months" type="months" @focus="rangeSelect" :readonly="readonly" :disabled="disabled" @blur="editBlur($event,'months',false)"></DateInput>
+            <DateInput v-model="months" @on-change-focus="change(2)" type="months" @focus="rangeSelect" :readonly="readonly" :disabled="disabled" @blur="editBlur($event,'months',false)"></DateInput>
           </span>
           <span v-show="year||months||day">{{dateSplit}}</span>
           <span v-show="year||months||day">
-            <DateInput v-model="day" type="day" @focus="rangeSelect" :readonly="readonly" :disabled="disabled" @blur="editBlur($event,'day',false)"></DateInput>
+            <DateInput v-model="day" @on-change-focus="change(3)" type="day" @focus="rangeSelect" :readonly="readonly" :disabled="disabled" @blur="editBlur($event,'day',false)"></DateInput>
           </span>
           <span :class="[prefixCls + '-activity left-icon']"><Icon @on-click="arrowClick" name="activity"></Icon></span>
           <span class="left-icon" v-show="clearable" ><Icon @on-click="closeClick" name="close" size="14"></Icon></span>
@@ -34,11 +35,11 @@
         <div v-show="showRange" :class="[prefixCls+'-inner-split']">--</div>
         <div v-show="showRange" :class="classRange" @click="handleRangeClick" @keydown="changeFocus($event,true)" ref="range">
           <span>
-            <DateInput  ref="year1" type="year" v-model="year1" @focus="rangeSelect" :readonly="readonly" :disabled="disabled" @blur="editBlur($event,'year',true)" :style="yearStyle" :class="yearClass" :placeholder="yearPlaceholder"></DateInput>
+            <DateInput  ref="year1" type="year" @on-change-focus="change(4)" v-model="year1" @focus="rangeSelect" :readonly="readonly" :disabled="disabled" @blur="editBlur($event,'year',true)" :style="yearStyle1" :class="yearClass" :placeholder="yearPlaceholder"></DateInput>
           </span>
           <span v-show="year1||months1||day1">{{dateSplit}}</span>
           <span v-show="year1||months1||day1">
-            <DateInput v-model="months1" type="months" @focus="rangeSelect" :readonly="readonly" :disabled="disabled" @blur="editBlur($event,'months',true)"></DateInput>
+            <DateInput v-model="months1" type="months" @on-change-focus="change(5)" @focus="rangeSelect" :readonly="readonly" :disabled="disabled" @blur="editBlur($event,'months',true)"></DateInput>
           </span>
           <span v-show="year1||months1||day1">{{dateSplit}}</span>
           <span v-show="year1||months1||day1">
@@ -148,12 +149,24 @@ export default {
       months1:'',
       day1:'',
       yearPlaceholder:'',
+      fPlacement:this.placement,
     }
   },
   computed: {
     yearStyle(){
       let style={}
       if (!this.year&&!this.months&&!this.day) {
+        this.yearPlaceholder = this.placeholder;
+        style.width='120px';
+      }else{
+        this.yearPlaceholder='';
+        style.width='32px';
+      }
+      return style;
+    },
+    yearStyle1(){
+      let style={}
+      if (!this.year1&&!this.months1&&!this.day1) {
         this.yearPlaceholder = this.placeholder;
         style.width='120px';
       }else{
@@ -211,7 +224,13 @@ export default {
   methods: {
     editBlur(event,str,isRange){
       let value = event.target.value.trim().replace(/[^0-9]/ig,"");
-      if (!value ||value.length==0) return;
+      if (!value || value.length==0){
+        if(isRange){
+          if(!this.year1&&!this.months1&&!this.day1) return;
+        }else{
+          if(!this.year&&!this.months&&!this.day) return;
+        }
+      }
       switch (str){
         case 'year':
           value = this.verificaYear(value,isRange);
@@ -311,7 +330,7 @@ export default {
           else{value = isdate(this.year1,this.months1,val)? val:'01';}    
           break;
         default:
-          value = getCurrentday();
+          value = getCurrentDay();
       }
       if (Number(value)==0) {
         value='01';
@@ -321,12 +340,11 @@ export default {
     yearInput(value,isrange){
       let pos = value.length;
       if (pos!=0 &&!this.months&&!this.day) {
-        this.months = getCurrentMonth();
-        this.day = getCurrentDay();
-        this.year = value;
-        this.months1 = getCurrentMonth();
-        this.day1 = getCurrentDay();
-        this.year1 = value;
+          this.year = this.year1 = value;
+          this.months = getCurrentMonth();
+          this.day = getCurrentDay();
+          this.months1 = getCurrentMonth();
+          this.day1 = getCurrentDay();  
       }
     },
     closeClick(){
@@ -343,11 +361,16 @@ export default {
       let inputList =isrange?this.$refs.range.querySelectorAll('input'):this.$refs.single.querySelectorAll('input');
       let activeInx; 
       let nextInx;
-      inputList.forEach((col,i)=>{
-        if (col == document.activeElement) {
+      for (var i = inputList.length - 1; i >= 0; i--) {
+        if(inputList[i]== document.activeElement){
           activeInx = i;
         }
-      });
+      }
+      // inputList.forEach((col,i)=>{//ie 11 不支持foreach
+      //   if (col == document.activeElement) {
+      //     activeInx = i;
+      //   }
+      // });
       if (code==37) {
         event.preventDefault();
         nextInx = (activeInx-1)>=0?(activeInx-1):2;
@@ -360,11 +383,15 @@ export default {
         inputList[nextInx].focus();
       }
     },  
+    change(inx){
+      let inputList = this.$refs.inner.querySelectorAll('input');
+      if(inx==3&&inputList.length<4) return;
+      inputList[inx].focus();
+    },
     handleChange (date) {
       this.inputValue = date;
       this.$emit('on-change',date);
       if (!this.confirm) this.opened=false;
-      // this.setDate(date);
     },
     handleClear () {
       this.opened = false;
@@ -409,11 +436,10 @@ export default {
       let arr=[];
       let arr1=[];
       if (this.type != 'daterange') {
-        // arr =val.split(this.dateSplit);
+        if(!this.formatSplit&&val.length!=8) return;
         arr =this.getArr(val,this.formatSplit)
       }else{
-        // arr = val[0].split(this.dateSplit);
-        // arr1 = val[1].split(this.dateSplit);
+        if(!this.formatSplit&&(val[0].length!=8||val[1].length!=8)) return;
         arr =this.getArr(val[0],this.formatSplit)
         arr1 =this.getArr(val[1],this.formatSplit)
       }
@@ -450,6 +476,23 @@ export default {
     focus(){
       this.opened = true;
       this.$refs.year.focus();
+    },
+    isClear(){
+      if (this.type!='daterange') {
+        if (!this.year&&!this.months&&!this.day) {
+          this.inputValue = '';
+        }else if(!(this.year&&this.months&&this.day)){
+          this.inputValue = this.year+this.formatSplit+this.months+this.formatSplit+this.day;
+        }
+      }else{
+        if (!this.year&&!this.months&&!this.day&&!this.year1&&!this.months1&&!this.day1) {
+          this.inputValue = ['',''];
+        }else if(!(this.year&&this.months&&this.day&&this.year1&&this.months1&&this.day1)){
+          let item0 = this.year+this.formatSplit+this.months+this.formatSplit+this.day;
+          let item1 = this.year1+this.formatSplit+this.months1+this.formatSplit+this.day1
+          this.inputValue = [item0,item1];
+        }
+      }
     }
   },
   watch:{
@@ -458,34 +501,40 @@ export default {
     },
     year(val){
       this.yearInput(val)
+      this.isClear();
     },
     year1(val){
       this.yearInput(val,true)
+      this.isClear();
+    },
+    months(){
+      // this.isClear();
+    },
+    months1(){
+      // this.isClear();
+    },
+    day(){
+      // this.isClear();
+    },
+    day1(){
+      // this.isClear();
     },
     inputValue(val){
+      this.setDate(val);
       this.$emit('input',val);
       this.dispatch('FormItem', 'on-form-change',val);
-      this.setDate(val);
     },
     value(val){
       if (typeOf(val)!='array') {
         this.inputValue = String(val);
-        this.setDate(String(this.value));
+        // this.setDate(String(this.value));
       }else{
         this.inputValue = val;
-        this.setDate(this.value);
+        // this.setDate(this.value);
       }
     },
-    yorMethods(){
-      let _this = this;
-      _this.dateArr.forEach((col,i)=>{
-        let obj={
-          renderHeader:(h,params)=>{
-            return h('td',_this.dateArr[i])
-          }
-        };
-        _this.columns[i]=obj;
-      })
+    placement(val){
+      this.fPlacement = val;
     }
   },
   mounted(){

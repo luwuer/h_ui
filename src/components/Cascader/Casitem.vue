@@ -1,7 +1,7 @@
 <template>
   <li :class="classes">
     {{ data.label }}
-    <Icon v-if="showArrow" name="play_fill"></Icon>
+    <Icon v-if="showArrow" name="ios-arrow-right"></Icon>
     <Icon v-if="showLoading" class="h-load-loop" name="load-c"></Icon>
   </li>
 </template>

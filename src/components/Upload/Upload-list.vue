@@ -2,9 +2,10 @@
   <!-- 其中showUploaded用于控制是否显示已上传列表，当显示已上传列表时，isShow失效 -->
   <ul :class="[prefixCls + '-list']">
     <li
-      v-for="file in files"
+      v-for="(file,inx) in files"
       :class="fileCls(file)"
       @click="handleClick(file)"
+      :key="inx"
       v-if="$parent.selfConfig && showUploaded !== 'showLi' ? file.isShow : true">
       <span @click="handlePreview(file)">
         <Icon :name="format(file)"></Icon> {{ file.name }}

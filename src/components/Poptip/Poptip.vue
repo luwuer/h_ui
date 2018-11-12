@@ -27,7 +27,7 @@
           <div :class="[prefixCls + '-arrow']"></div>
           <div :class="[prefixCls + '-inner']" v-if="confirm">
             <div :class="[prefixCls + '-body']">
-              <icon name="feedback"></icon>
+              <icon name="android-alert"></icon>
               <div :class="[prefixCls + '-body-message']"><slot name="title">{{ title }}</slot></div>
             </div>
             <div :class="[prefixCls + '-footer']">
@@ -98,6 +98,10 @@ export default {
     transfer: {
       type: Boolean,
       default: false
+    },
+    closeOutClick:{
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -155,6 +159,7 @@ export default {
       if (this.transfer) this.disableCloseUnderTransfer = true;
     },
     handleClose () {
+      if(this.closeOutClick)return;
       if (this.disableCloseUnderTransfer) {
         this.disableCloseUnderTransfer = false;
         return false;

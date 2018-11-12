@@ -8,6 +8,7 @@ $selecttree-prefix-cls:  "#{$css-prefix}selectTree";
   color: $text-color;
   font-size: $font-size-base;
   line-height: normal;
+  height: $form-component-height;
   position: relative;
 
   &-selection {

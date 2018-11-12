@@ -66,7 +66,7 @@ export default {
         },
         innerClasses () {
             return `${prefixCls}-inner`;
-        },
+        }
     },
     methods: {
         handleScroll () {

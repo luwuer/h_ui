@@ -4,7 +4,6 @@ $dropdown-item-prefix-cls: "#{$dropdown-prefix-cls}-item";
 .#{$dropdown-prefix-cls} {
   display: inline-block;
   //position: relative;
-
   .#{$select-dropdown-prefix-cls} {
     overflow: visible;
     max-height: none;
@@ -12,10 +11,14 @@ $dropdown-item-prefix-cls: "#{$dropdown-prefix-cls}-item";
   .#{$dropdown-prefix-cls} {
     width: 100%;
   }
-
   &-rel{
     //display: inline-block;
     position: relative;
+    > a{
+      > i{
+        vertical-align: middle;
+      }
+    }
   }
 
   &-menu{

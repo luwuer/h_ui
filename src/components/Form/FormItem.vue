@@ -18,7 +18,7 @@
 <script>
     import AsyncValidator from 'async-validator';
     import Emitter from '../../mixins/emitter';
-    import { is , findComponentChildren, findComponentParent} from '../../util/tools'
+    import { is , findComponentChildren, findComponentParent,deepCopy, typeOf} from '../../util/tools'
     import Validate from './validate';
     const prefixCls = 'h-form-item';
     const parentPrefixCls = 'h-form';
@@ -84,7 +84,11 @@
             },
             cols: {
                 type: [String, Number]
-            }
+            },
+            labelWrap: {
+                type: Boolean,
+                default: null
+            },
         },
         data () {
             return {
@@ -112,6 +116,22 @@
             },
             cols (val) {
                 this.curCols = val
+            },
+            required (val){
+                if(val){
+                    this.isRequired = true
+                    const reqRule = {required: true, message: '输入不能为空'}
+                    this.reqRules.push(reqRule)
+                }else{
+                    this.isRequired = false
+                    this.validateState = ''
+                    this.reqRules=[];
+                }
+                this.commonRule();
+                
+            },
+            rules (val){
+                this.commonRule();
             }
         },
         computed: {
@@ -125,7 +145,8 @@
                         [`${prefixCls}-validating`]: this.validateState === 'validating',
                         [`${prefixCls}-reqNoLabel`]: !(this.label || this.$slots.label) && this.isRequired,
                         [`${parentPrefixCls}-col-`+ this.form.cols]: parseInt(this.form.cols) <= 12,                     
-                        [`${prefixCls}-col-`+ this.curCols]: (this.curCols && parseInt(this.curCols) <= 12 && parseInt(this.curCols) <= parseInt(this.form.cols) && parseInt(this.form.cols) <= 12) ? true : false
+                        [`${prefixCls}-col-`+ this.curCols]: (this.curCols && parseInt(this.curCols) <= 12 && parseInt(this.curCols) <= parseInt(this.form.cols) && parseInt(this.form.cols) <= 12) ? true : false,
+                        [`${prefixCls}-labelWrap`]: this.labelWrap != null ? this.labelWrap : this.labelWrap == null && this.form.labelWrap != null  ? this.form.labelWrap : false,
                     }
                 ];
             },
@@ -246,6 +267,9 @@
                 let model = {};
 
                 model[this.prop] = this.fieldValue;
+                if(typeOf(this.fieldValue)=='array'&&this.fieldValue.length==2 ) {
+                    if(this.fieldValue[0]==''&&this.fieldValue[1]=='') model[this.prop] = [];
+                }
                 validator.validate(model, { firstFields: true }, errors => {
                     this.validateState = !errors ? 'success' : 'error';
                     this.validateMessage = errors ? errors[0].message : '';
@@ -266,7 +290,6 @@
             resetField () {
                 this.validateState = '';
                 this.validateMessage = '';
-
                 let model = this.form.model;
                 let value = this.fieldValue;
                 let path = this.prop;
@@ -291,8 +314,21 @@
                     this.validateDisabled = false;
                     return;
                 }
-
                 this.validate('change');
+            },
+            commonRule(){
+                let rules = this.getRules();
+                
+                if (rules.length) {
+                    rules.every(rule => {
+                        if (rule.required) {
+                            this.isRequired = true;
+                            return false;
+                        }
+                    });
+                    this.$on('on-form-blur', this.onFieldBlur);
+                    this.$on('on-form-change', this.onFieldChange);
+                }
             }
         },
         mounted () {
@@ -308,7 +344,7 @@
                 this.dispatch('Form', 'on-form-item-add', this);
 
                 Object.defineProperty(this, 'initialValue', {
-                    value: this.fieldValue
+                    value: deepCopy(this.fieldValue)
                 });
                 if(this.validRules && this.validRules.length > 0 ) {
                     this.customRules();

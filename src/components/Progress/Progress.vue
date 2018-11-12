@@ -10,8 +10,11 @@
         <span v-if="isStatus" :class="textInnerClasses">
           <Icon :name="statusIcon"></Icon>
         </span>
-        <span v-else :class="textInnerClasses">
+        <!-- <span v-else :class="textInnerClasses">
           {{ percent }}%
+        </span>  -->
+        <span v-else :class="textInnerClasses">
+          {{progressShowValue}}
         </span>
       </slot>
     </span>
@@ -48,11 +51,32 @@ export default {
     vertical: {
       type: Boolean,
       default: false
+    },
+    showType: {
+      type: String,
+      validator (value) {
+        // fraction 分数
+        // percent 百分比
+          return oneOf(value, ['percent', 'fraction']);
+      },
+      default: 'percent'
+    },
+    // 分子
+    numerator: {
+      type: [Number, String],
+      default: 0
+    },
+    // 分母
+    denominator: {
+      type: [Number, String],
+      default: 1
     }
   },
   data () {
     return {
-      currentStatus: this.status
+      currentStatus: this.status,
+      progressValue: 0,
+      progressShowValue: ''
     };
   },
   computed: {
@@ -63,10 +87,10 @@ export default {
       let type = '';
       switch (this.currentStatus) {
         case 'wrong':
-          type = 'close';
+          type = 'delete_fill';
           break;
         case 'success':
-          type = 'right';
+          type = 'success_fill';
           break;
       }
 
@@ -74,10 +98,12 @@ export default {
     },
     bgStyle () {
      return this.vertical ? {
-          height: `${this.percent}%`,
+          // height: `${this.percent}%`,
+          height: `${this.progressValue}%`,
           width: `${this.strokeWidth}px`
       } : {
-          width: `${this.percent}%`,
+          // width: `${this.percent}%`,
+          width: `${this.progressValue}%`,
           height: `${this.strokeWidth}px`
       };
     },
@@ -108,15 +134,29 @@ export default {
     }
   },
   created () {
+    this.handleValue()
     this.handleStatus();
   },
   methods: {
+    // 分百分比或者分子分母比显示，重新计算进度值
+    handleValue () {
+      if (this.showType == 'percent' && this.percent >= 0) {
+        this.progressValue = this.percent
+        this.progressShowValue = `${this.percent}%`
+      } else if (this.showType == 'fraction' && parseInt(this.denominator) > 0 && parseInt(this.numerator) <= parseInt(this.denominator)) {
+        this.progressValue = Number((parseInt(this.numerator) * 100) / parseInt(this.denominator)).toFixed(0)
+        this.progressShowValue = `${this.numerator}`+ '/' + `${this.denominator}`
+      } else {
+        this.$hMessage.info('当前进度值输入不合法')
+      }
+    },
     handleStatus (isDown) {
       if (isDown) {
         this.currentStatus = 'normal';
         this.$emit('on-status-change', 'normal');
       } else {
-        if (parseInt(this.percent, 10) == 100) {
+        // if (parseInt(this.percent, 10) == 100) {
+        if (parseInt(this.progressValue, 10) == 100) {
           this.currentStatus = 'success';
           this.$emit('on-status-change', 'success');
         }
@@ -124,7 +164,23 @@ export default {
     }
   },
   watch: {
-    percent (val, oldVal) {
+    // percent (val, oldVal) {
+    //   if (val < oldVal) {
+    //     this.handleStatus(true);
+    //   } else {
+    //     this.handleStatus();
+    //   }
+    // },
+    percent () {
+      this.handleValue()
+    },
+    numerator () {
+      this.handleValue()
+    },
+    denominator () {
+      this.handleValue()
+    },
+    progressValue (val, oldVal) {
       if (val < oldVal) {
         this.handleStatus(true);
       } else {

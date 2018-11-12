@@ -1,0 +1,16 @@
+  .h-tree-space {
+    position: relative;
+    top: 1px;
+    display: inline-block;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1;
+    width: 16px;
+    height: 14px;
+}
+.h-editgird-wrapper {
+  .h-spin-fix {
+    border-bottom: 1px solid $border-color-base;
+    border-right: 1px solid $border-color-base;
+  }
+}

@@ -1,5 +1,5 @@
 <template>
-  <div :class="[prefixCls]" v-clickoutside="handleClose">
+  <div :class="[prefixCls]" v-clickoutside="handleClose" ref='wrapper'>
     <div ref="reference" :class="[prefixCls + '-rel']">
       <slot>
         <h-input
@@ -28,11 +28,11 @@
           @click.native="handleTransferClick"
           v-show="opened"
           :class="{ [prefixCls + '-transfer']: transfer }"
-          :placement="placement"
+          :placement="fPlacement"
           ref="drop"
           :data-transfer="transfer"
           v-transfer-dom>
-          <div>
+          <div @click="handleclick">
             <component
                :is="panel"
                ref="pickerPanel"
@@ -47,6 +47,7 @@
                :split-panels="splitPanels"
                :show-week-numbers="showWeekNumbers"
                :picker-type="type"
+               :showTwoPanel="this.showTwoPanel"
                :range-num="controlRange?selectRange:0"
 
                v-bind="ownPickerProps"
@@ -68,7 +69,8 @@
   import Drop from '../../components/Select/Dropdown.vue';
   import clickoutside from '../../directives/clickoutside';
   import TransferDom from '../../directives/transfer-dom';
-  import { oneOf } from '../../util/tools';
+  import { oneOf,indexOf} from '../../util/tools';
+  import { on, off } from '../../util/dom';
   import {DEFAULT_FORMATS, TYPE_VALUE_RESOLVER_MAP } from './util';
   import Emitter from '../../mixins/emitter';
   import Locale from '../../mixins/locale';
@@ -165,10 +167,18 @@
       selectRange:{//可选择范围 多系统交易
         type:[String,Number],
         default:1
+      },
+      showTwoPanel:{
+        type:Boolean,
+        default:false,
+      },
+      autoPlacement:{
+        type:Boolean,
+        default:false,
       }
     },
     data () {
-      const isRange = this.type.includes('range');
+      const isRange = this.type.indexOf('range')>-1?true:false;
       const emptyArray = isRange ? [null, null] : [null];
       let initialValue = isEmptyArray((isRange ? this.value : [this.value]) || []) ? emptyArray : this.parseDate(this.value);
       if (this.name=='splicePanel') initialValue=this.parseDate(this.value);
@@ -183,6 +193,7 @@
         forceInputRerender: 1,
         isFocus: false,
         rangeNum:0,
+        fPlacement:this.placement
       };
     },
     computed: {
@@ -190,7 +201,8 @@
         if (this.multiple){
             return this.internalValue.slice();
         } else {
-            const isRange = this.type.includes('range');
+            // const isRange = this.type.includes('range');
+            const isRange = this.type.indexOf('range')>-1?true:false;
             let val = this.internalValue.map(date => date instanceof Date ? new Date(date) : (date || ''));
             if (this.type.match(/^time/)) val = val.map(this.formatDate);
             return (isRange || this.multiple) ? val : val[0];
@@ -211,7 +223,7 @@
         return icon;
       },
       transition () {
-        const bottomPlaced = this.placement.match(/^bottom/);
+        const bottomPlaced = this.fPlacement.match(/^bottom/);
         return bottomPlaced ? 'slide-up' : 'slide-down';
       },
       visualValue() {
@@ -281,7 +293,8 @@
         //   this.handleClear();
         //   return false;
         // }
-        const isArrayValue = this.type.includes('range') || this.multiple;
+        // const isArrayValue = this.type.includes('range') || this.multiple;
+        const isArrayValue = this.type.indexOf('range')>-1?true:false || this.multiple;
         const oldValue = this.visualValue;
         const newValue = event.target.value;
         const newDate = this.parseDate(newValue);
@@ -323,7 +336,6 @@
         this.dispatch('FormItem', 'on-form-change', '');
         this.emitChange();
         this.reset();
-
         setTimeout(
             () => this.onSelectionModeChange(this.type),
             500 // delay to improve dropdown close visual effect
@@ -336,7 +348,8 @@
           });
       },
       parseDate(val) {
-          const isRange = this.type.includes('range');
+          // const isRange = this.type.includes('range');
+          const isRange = this.type.indexOf('range')>-1?true:false;
           const type = this.type;
           const parser = (
               TYPE_VALUE_RESOLVER_MAP[type] ||
@@ -392,7 +405,6 @@
           } else {
               this.internalValue = Array.isArray(dates) ? dates : [dates];
           }
-
           if (!this.isConfirm) this.onSelectionModeChange(this.type); // reset the selectionMode
           if (!this.isConfirm) this.visible = visible;
           this.emitChange();
@@ -404,12 +416,36 @@
       },
       handleSelectRange(val,status){
         this.$emit('on-select-range',val,status);
+      },
+      handleclick(e){
+        e.stopPropagation();
+      },
+      setPlacement(){
+        //   debugger;
+        if(this.autoPlacement){
+            let obj = this.$refs.wrapper;
+            let allWidth= document.body.clientWidth;
+            let allHeight= document.body.clientHeight;
+            let curbottom =allHeight-obj.offsetTop-obj.clientHeight;
+            let curright = allWidth-obj.offsetLeft;
+            let bottomNum = this.confirm?300:250;
+            let rightNum = this.type.indexOf('range')>-1?436:220;
+            let isShortcuts =  this.options&&this.options.shortcuts&&this.options.shortcuts.length>0;
+            rightNum =isShortcuts?rightNum+95:rightNum;
+            if(curbottom<bottomNum&&curright<rightNum){
+                this.fPlacement = 'top-end';
+            }else if(curbottom<bottomNum){
+                this.fPlacement = 'top-start';
+            }else if(curright<rightNum){
+                this.fPlacement = 'bottom-end';
+            }
+        }
       }
     },
     watch: {
       visible (state) {
         if (state === false){
-          this.$refs.drop.destroy();
+        //   this.$refs.drop.destroy();
           const input = this.$el.querySelector('input');
           if (input) input.blur();
         }
@@ -435,11 +471,15 @@
           // this.$emit('input', now); // to update v-model
         } 
       },
+      placement(val){
+          this.fPlacement = val;
+      },
     },
     beforeDestroy () {
       if (this.picker) {
         this.picker.$destroy();
       }
+      this.$refs.drop.destroy();
     },
     mounted () {
       const initialValue = this.value;
@@ -452,6 +492,7 @@
           }
       }
       if (this.open !== null) this.visible = this.open;
+      this.setPlacement();
     }
   };
 </script>

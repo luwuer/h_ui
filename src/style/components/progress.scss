@@ -36,7 +36,7 @@ $progress-prefix-cls: "#{$css-prefix}progress";
     &-inner {
         display: inline-block;
         width: 100%;
-        background-color: #f3f3f3;
+        background-color: #F7F7F7;
         border-radius: 100px;
         vertical-align: middle;
     }
@@ -76,6 +76,10 @@ $progress-prefix-cls: "#{$css-prefix}progress";
         text-align: left;
         font-size: 1em;
         vertical-align: middle;
+        font-family: MicrosoftYaHei;
+        font-size: 12px;
+        color: #7E828A;
+        line-height: 20px;
         .iconfont {
             font-size: 14px;
         }

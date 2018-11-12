@@ -11,10 +11,10 @@ let name = 1;
 
 
 const iconTypes = {
-  'info': 'prompt',
-  'success': 'success',
-  'warning': 'warning',
-  'error': 'delete',
+  'info': 'prompt_fill',
+  'success': 'success_fill',
+  'warning': 'warning_fill',
+  'error': 'delete_fill',
   'loading': 'load-c'
 };
 

@@ -121,7 +121,6 @@ $cascader-item-prefix-cls: "#{$css-prefix}cascader-menu-item";
       &:only-child {
 
       }
-
       & &-item{
           position: relative;
           padding-right: 24px;
@@ -130,7 +129,7 @@ $cascader-item-prefix-cls: "#{$css-prefix}cascader-menu-item";
           i{
               font-size: $font-size-small;
               position: absolute;
-              right: 15px;
+              right: 12px;
               top: 50%;
               margin-top: -6px;
           }
@@ -140,6 +139,18 @@ $cascader-item-prefix-cls: "#{$css-prefix}cascader-menu-item";
               color: $primary-color;
           }
       }
+  }
+
+}
+.provice-city{
+  span span .h-cascader-menu{
+    width: 200px;
+    overflow: auto;
+    li{
+        float: left;
+        width: 33% !important;
+        clear: none;
+    }
   }
 }
 .#{$cascader-prefix-cls}-transfer{

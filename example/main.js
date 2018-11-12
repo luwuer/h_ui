@@ -5,11 +5,13 @@ import App from './App'
 import router from './router/index'
 import Venus from '../src/index.js'
 // import '../dist/h_ui.min.css'
-// import Venus from '../dist/h_ui.min.js'
+// import Upload from '../dist/lib/Upload.js'
+// import Button from '../dist/lib/Button.js'
 // import hello_npm from 'venus_hello_npm'
 
 Vue.use(Venus)
-// Vue.component('Markup', Markup)
+// Vue.component('h-upload',Upload)
+// Vue.component('h-button',Button)
 
 new Vue({
   el: '#app',

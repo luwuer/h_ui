@@ -1,0 +1,35 @@
+$selectBlock-prefix-cls:  "#{$css-prefix}select-block";
+.#{$selectBlock-prefix-cls}-drop{
+    position: relative;
+    max-height: 210px;
+    overflow: auto;
+}
+.#{$selectBlock-prefix-cls}-show-bottom{
+    max-height: 170px;
+}
+.#{$selectBlock-prefix-cls}-phantom,.#{$selectBlock-prefix-cls}-content{
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+}
+.#{$selectBlock-prefix-cls}-phantom{
+    z-index: -1;
+}
+.#{$selectBlock-prefix-cls}-item{
+    height: 30px;
+    line-height: 30px;
+    padding: 0 14px;
+    font-size: $font-size-small;
+}
+.#{$selectBlock-prefix-cls}-item:hover{
+    background: $background-color-select-hover;
+    cursor: pointer;
+}
+.#{$selectBlock-prefix-cls}-selected{
+    background: $background-color-select-hover;
+}
+.#{$selectBlock-prefix-cls}-empty{
+    line-height: 30px;
+    text-align: center;
+}

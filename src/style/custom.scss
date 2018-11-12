@@ -21,22 +21,26 @@
 $css-prefix: h-;
 $css-prefix-iconfont: font-icon;
 // Color
-$primary-color: #0275d8;
-$info-color: #5bc0de;
-$success-color: #5cb85c;
-$warning-color: #f0ad4e;
-$error-color: #d9534f;
+$primary-color: #298DFF;
+$info-color: #298DFF;
+$success-color: #1ABE6B;
+$warning-color: #FF9901 ;
+$error-color: #F5222D;
 $changed-color: #d9534f;
-$link-color: #0275d8;
+$link-color: #298DFF;
 $link-hover-color: lighten($link-color, 20%);
 $link-active-color: darken($link-color, 5%);
 $selected-color: lighten($primary-color, 10%);
+$no-select-color:#e5ebf1;
 $tooltip-color: #fff;
-$subsidiary-color: #9ea7b4;
+$subsidiary-color: #c3cbd6;
+$arrow-color: #9EA7B4;
 $rate-star-color: #f5a623;
+$icon-color:#9EA7B4;
 // Base
 $body-background: #fff;
-$font-family: "Helvetica Neue",
+$font-family: 
+"Helvetica Neue",
 Helvetica,
 "PingFang SC",
 "Hiragino Sans GB",
@@ -48,8 +52,8 @@ $code-family: Consolas,
 Menlo,
 Courier,
 monospace;
-$title-color: #464c5b;
-$text-color: #657180;
+$title-color: #495060;
+$text-color: #495060;
 $font-size-base: 14px;
 $font-size-small: 12px;
 $line-height-base: 1.5;
@@ -58,19 +62,21 @@ $border-radius-base: 6px;
 $border-radius-small: 4px;
 $cursor-disabled: not-allowed;
 // Border color
-$border-color-base: #d7dde4; // outside
-$border-color-split: #e2e7eb; // inside
+$border-color-base: #D7DDE4; // outside
+$border-color-split: #F7F7F7; // inside
+$border-color-bottom: #DCE1E7;
 // Background color
 $background-color-base: #f7f7f7; // base
-$background-color-select-hover: #f3f3f3;
-$tooltip-bg: rgba(70, 76, 91, .9);
+$background-color-select-hover: #EAF5FF;
+$tooltip-bg: #585E6A;
 $head-bg: #f9fafc;
 $table-thead-bg: #fff;
 $table-td-stripe-bg: #f0f3f5;
-$table-td-hover-bg: #e8ecf1;
+$table-td-hover-bg: #EAF5FF;
 $table-td-highlight-bg: #d5dde6;
 $table-td-selected-bg: #d5dde6;
 $table-td-group-bg: #c0cad6;
+$table-td-group-line-bg: #FAFAFA;
 $table-large-td: 45px;
 $table-small-td: 32px;
 $table-normal-td: 40px;
@@ -79,6 +85,7 @@ $menu-dark-title: #495060;
 $menu-dark-subsidiary-color: rgba(255, 255, 255, .7);
 $menu-dark-group-title-color: rgba(255, 255, 255, .36);
 $date-picker-cell-hover-bg: #e1f0fe;
+$date-picker-panel-shortcut-hover-bg:#e2e7eb;
 // Shadow
 $shadow-color: rgba(0, 0, 0, .2);
 $shadow-card: 0 1px 1px 0 rgba(0, 0, 0, .1);
@@ -106,8 +113,11 @@ $btn-default-border: $border-color-base;
 $btn-primary-color: #fff;
 $btn-primary-bg: $primary-color;
 $btn-ghost-color: $text-color;
-$btn-ghost-bg: transparent;
+$btn-ghost-bg: #fff;
 $btn-ghost-border: $border-color-base;
+$btn-danger-color:#F5222D;
+$btn-danger-bg:#F7F7F7;
+$btn-danger-border:  #D7DDE4;
 $btn-circle-size: 32px;
 $btn-circle-size-large: 36px;
 $btn-circle-size-small: 24px;
@@ -120,18 +130,18 @@ $legend-color: #999;
 $input-height-base: 32px;
 $input-height-large: 36px;
 $input-height-small: 24px;
-$input-padding-horizontal: 7px;
+$input-padding-horizontal: 12px;
 $input-padding-vertical-base: 4px;
 $input-padding-vertical-small: 1px;
-$input-padding-vertical-large: 6px;
+$input-padding-vertical-large: 5px;
 $input-placeholder-color: $btn-disable-color;
 $input-color: $text-color;
 $input-border-color: $border-color-base;
 $input-bg: #fff;
 $input-hover-border-color: $primary-color;
 $input-focus-border-color: $primary-color;
-$input-disabled-bg: #f3f3f3;
-$input-readonly-bg: #f3f3f3;
+$input-disabled-bg: #F7F7F7;
+$input-readonly-bg: #F7F7F7;
 $input-required-icon-color: #E8380C;
 // Tag
 $tag-font-size: 12px;
@@ -164,17 +174,18 @@ $zindex-tooltip: 1060;
 $zindex-loading-bar: 2000;
 $zindex-transfer: 1060;
 $zindex-spin-fullscreen : 2010;
+$zindex-drawer:1000;
 // Animation
 $animation-time: .3s;
 $transition-time: .2s;
 $ease-in-out: ease-in-out;
 // Slider
-$slider-color: lighten($primary-color, 10%);
+$slider-color: $primary-color;
 $slider-height: 4px;
 $slider-margin: 16px 0;
 $slider-button-wrap-size: 18px;
 $slider-button-wrap-offset: -4px;
-$slider-disabled-color: #ccc;
+$slider-disabled-color: #DFDFDF;
 // Waves
 // ============================================================
 $waves-container-color: #fff;
@@ -195,5 +206,8 @@ $badge-width: 22px;
 $badge-offset: 10px;
 
 $form-cols: 12;
+$form-component-height:32px;
 
-$max-height: 210px
+$max-height: 210px;
+//rate
+$rate-star-color: #f5a623;

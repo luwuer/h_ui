@@ -1,9 +1,13 @@
 <template>
-  <div v-if="showSizer || showElevator" :class="optsClasses">
+  <div v-if="showSizer || showElevator||showCustom" :class="optsClasses">
     <div v-if="showSizer" :class="sizerClasses">
       <h-select v-model="currentPageSize" :size="size" :placement="placement" @on-change="changeSize" :clearable="false">
         <h-option v-for="item in pageSizeOpts" :key="item" :value="item" style="text-align:center;">{{ item }} {{ t('i.page.page') }}</h-option>
       </h-select>
+    </div>
+    <div v-if="showCustom&&!showSizer" :class="ElevatorClasses">
+      <input v-model="currentPageSize" @keyup.enter="changeCustom">
+      {{curSize}}条/每页
     </div>
     <div v-if="showElevator" :class="ElevatorClasses">
       {{ t('i.page.goto') }}
@@ -39,10 +43,12 @@
             isSmall: Boolean,
             placement: String,
             isBlur:Boolean,
+            showCustom:Boolean,
         },
         data () {
             return {
-                currentPageSize: this.pageSize
+                currentPageSize: this.pageSize,
+                curSize:this.pageSize
             };
         },
         watch: {
@@ -72,7 +78,13 @@
         },
         methods: {
             changeSize () {
-                this.$emit('on-size', this.currentPageSize);
+                this.$emit('on-size', Number(this.currentPageSize));
+            },
+            changeCustom(){
+                if(isValueNumber(this.currentPageSize)){
+                    this.curSize = this.currentPageSize;
+                    this.changeSize();
+                }
             },
             changePage (event) {
                 let val = event.target.value.trim();

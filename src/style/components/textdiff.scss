@@ -1,0 +1,74 @@
+  .no-border-right {
+    border-right: 0!important;
+  }
+  $textdiff-prefix-cls: "#{$css-prefix}textdiff";
+  $textdiffWrap-prefix-cls: "#{$textdiff-prefix-cls}-wrapper";
+
+  .#{$textdiff-prefix-cls} {
+    .#{$textdiffWrap-prefix-cls} {
+      .h-textdiff-title {
+        border: 1px solid $border-color-base;
+        border-bottom: 0;
+        height: $input-height-base;
+        line-height: $input-height-base;
+        font-size: $font-size-base;
+        padding: 0 5px;
+        color: $title-color;
+      }
+      .h-textdiff-content {  
+        border: 1px solid $border-color-base; 
+        border-radius: 4px; 
+        overflow: auto;  
+        position: relative;  
+        height: 75vh;  
+        textarea {  
+          display: none;
+        }
+        pre {  
+          margin: 0;
+          padding: 0;
+          font-family: '宋体', Arial, Microsoft Yahei, sans-serif, Verdana;
+          overflow-y: scroll;  
+          // white-space: pre-wrap;  
+          // word-wrap: break-word;  
+          // word-break: break-all;  
+          width: 100%;  
+          height: 100%;  
+          text-align: left;  
+          color: $text-color;  
+          z-index: 10;  
+          font-size: 12px; 
+          border: 0;
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+          background-color: #fff;
+          overflow-x: auto; 
+          code {
+            display: block;
+          }
+          code.h-textdiff-rowSelect,
+          code:hover {
+            background: rgb(241, 241, 146);          
+          }
+        } 
+      } 
+    }
+    .h-textdiff-selectContent {
+      height: 28px;
+      line-height: 28px;
+      border: 1px solid $border-color-base;
+      border-top: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      &:empty:before{
+        content: attr(placeholder);
+        color:#bbb;
+      }
+      &:before{
+        content:none;
+      }
+    }
+  }

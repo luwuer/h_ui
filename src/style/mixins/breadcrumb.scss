@@ -1,11 +1,23 @@
 $breadcrumb-prefix-cls: "#{$css-prefix}breadcrumb";
 
 .#{$breadcrumb-prefix-cls} {
-  color: #999;
-  font-size: $font-size-base;
+  // color: #999;
+  // font-size: $font-size-base;
+  font-family: MicrosoftYaHei;
+  font-size: 14px;
+  color: #495060;
+  letter-spacing: 0;
+  text-align: left;
+  line-height: 24px;
   a {
-    color: $text-color;
+    //color: $text-color;
     transition: color $transition-time $ease-in-out;
+    font-family: MicrosoftYaHei;
+    font-size: 14px;
+    color: #495060;
+    letter-spacing: 0;
+    text-align: left;
+    line-height: 24px;
     &:hover {
       color: lighten($primary-color, 5%);
     }
@@ -16,7 +28,13 @@ $breadcrumb-prefix-cls: "#{$css-prefix}breadcrumb";
 
   & > span:last-child {
     font-weight: bold;
-    color: $text-color;
+    //color: $text-color;
+    font-family: MicrosoftYaHei-Bold;
+    font-size: 14px;
+    color: #495060;
+    letter-spacing: 0;
+    text-align: left;
+    line-height: 24px;
   }
 
   & > span:last-child &-item-separator {
@@ -25,7 +43,9 @@ $breadcrumb-prefix-cls: "#{$css-prefix}breadcrumb";
 
   &-item-separator {
     margin: 0 8px;
-    color: $border-color-base;
+    // color: $border-color-base;
+    font-size: 14px;
+    color: #DCE1E7;
   }
 
   &-item-link {

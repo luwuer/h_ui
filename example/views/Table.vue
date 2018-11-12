@@ -1,17 +1,21 @@
 <template>
   <div>
     <h2>基础</h2>
-<!--     <h-msg-box v-model="msgbox">
+     <h-msg-box v-model="msgbox">
       <p slot="header">你好呀</p>
       <h-table :columns="columns1" :data="[]" border :highlight-row="true" @on-current-change="click1" :loading="loading" headAlgin="right" bodyAlgin="left" @on-drag="onDrag">
         <span slot="loading">我是自定义加载！！！</span>
       </h-table>
-    </h-msg-box> -->
-    <Button @click="changemsg">显示</Button>
-    <h-table :columns="columns1" :data="[]" border :highlight-row="true" @on-current-change="click1" :loading="loading" headAlgin="right" bodyAlgin="left" @on-drag="onDrag" height="200" canMove @on-move="onMove">
+    </h-msg-box> 
+    <!-- <Button @click="refresh">显示</Button>
+    <Button @click="getData">重新赋值</Button>
+    <h-input v-model="aaa"></h-input> -->
+     <Button @click="changemsg">显示</Button>
+    <h-table :columns="columns1" :multiLevel="multiLevel1" :data="[]" border :highlight-row="true" @on-current-change="click1" :loading="loading" headAlgin="right" bodyAlgin="left" @on-drag="onDrag" height="200" canMove @on-move="onMove" :lastColWidth="150">
       <span slot="loading">我是自定义加载！！！</span>
     </h-table>
-    <h-button @click="setLoading">切换状态</h-button>/
+    <h-button @click="setLoading">切换状态</h-button>
+    <h-button @click="setMult">切换hiddenCol</h-button>
     <h2>带边线</h2>
     <h-table border :columns="columns1" :data="data0" stripe no-data-text="数据为空" :show-header="false" :loading="loading" canMove>
       <div slot="header">我是表头</div>
@@ -22,19 +26,25 @@
     <p>列：通过给列 columns 设置字段 className 可以给某一列指定一个样式。</p>
     <p>单元格：通过给数据 data 设置字段 cellClassName 可以给任意一个单元格指定样式。</p>
     <p>自定义行样式：</p>
-    <h-table :row-class-name="rowClassName" :columns="columns1" :data="data1" :loading="loading" :highlight-row='true' canMove></h-table>
+    <h-table :row-class-name="rowClassName" :multiLevel="multiLevel2" :columns="columns1" :data="data1" :loading="loading" :highlight-row='true' canMove></h-table>
     <p>自定义列样式：</p>
     <h-table :columns="columns9" :data="data1" :loading="loading"></h-table>
     <p>自定义任意单元格样式：</p>
+    <Button @on-click="changeHidden">改变hiddenCol</Button>
     <h-table :columns="columns1" :data="data8" @on-row-click="click1" :loading="loading"></h-table>
     <h2>固定表头</h2>
     <p>通过设置属性 height 给表格指定高度后，会自动固定表头。当纵向内容过多时可以使用</p>
+    <p>设置maxheight 600</p>
+    <h-table maxHeight="600" :columns="columns1" :data="data2" border :loading="loading" showTitle></h-table>
     <h-table height="200" :columns="columns1" :data="data2" border :loading="loading" showTitle></h-table>
     <h2>固定列</h2>
     <p>通过给数据 columns 的项设置 fixed 为 left 或 right，可以左右固定需要的列。</p>
-    <h-table width="1000" border :columns="columns2" :data="data3" :loading="loading"></h-table>
+    <h-table border :columns="columns2" showTitle :data="data3" :loading="loading" canMove height="250" canDragFixed :minDragWidth="60"></h-table>
     <h2>固定表头和列</h2>
-    <h-table width="550" height="300" border :columns="columns2" :data="data4" :loading="loading" @on-scroll="scroll"></h-table>
+    <h-table height="300" width="550" border :columns="columns2" :data="data4" :loading="loading" @on-scroll="scroll"></h-table>
+    <p>设置maxheight 800</p>
+    <h-table maxHeight="800" width="550" border :columns="columns2" :data="data4" :loading="loading" @on-scroll="scroll"></h-table>
+    <h-table height="800" width="550" border :columns="columns2" :data="[data4[1]]" :loading="loading" @on-scroll="scroll"></h-table>
     <h2>单选</h2>
     <p>通过设置属性 highlight-row，可以选中某一行。</p>
     <p>给 data 项设置特殊 key _highlight: true 可以默认选中当前项。</p>
@@ -45,7 +55,7 @@
     <p>@on-select，选中某一项触发，返回值为 selection 和 row，分别为已选项和刚选择的项。</p>
     <p>@on-select-all，点击全选时触发，返回值为 selection，已选项。</p>
     <p>@on-selection-change，只要选中项发生变化时就会触发，返回值为 selection，已选项。</p>
-    <h-table border :columns="columns4" :data="data1" @on-select-all="allSelect" @on-select="select" :rowSelect="true" @on-selection-change="selsetChange" :loading="loading" canMove></h-table>
+    <h-table border :columns="columns4" :data="data1" :rowSelect="true" @on-selection-change="selsetChange" :loading="loading"></h-table>
     <h2>排序</h2>
     <p>通过给 columns 数据的项，设置 sortable: true，即可对该列数据进行排序。</p>
     <p>排序默认使用升序和降序，也可以通过设置属性 sortMethod 指定一个自定义排序函数，接收三个参数 a 、 b 和 type。</p>
@@ -56,7 +66,7 @@
     <p>通过给 columns 数据的项，设置 filters，可进行筛选</p>
     <p>必须指定一个筛选函数 filterMethod 才可以进行筛选，filterMethod 传入两个参数 value 和 row，详见 Demo 和 API。</p>
     <p>如果指定 filterMultiple: false，则使用单选，默认为多选。</p>
-    <h-table border :columns="columns6" :data="data5" no-filtered-data-text="筛选后结果为空123" :loading="loading"></h-table>
+    <h-table border :columns="columns6" :data="data5" no-filtered-data-text="筛选后结果为空123" :loading="loading" canMove></h-table>
     <h2>自定义列模板</h2>
     <p>通过给 columns 数据的项，设置一个函数 render，可以自定义渲染当前列，包括渲染自定义组件，它基于 Vue 的 Render 函数。</p>
     <p>render 函数传入两个参数，第一个是 h，第二个是对象，包含 row、column 和 index，分别指当前单元格数据，当前列数据，当前是第几行。</p>
@@ -65,11 +75,11 @@
     <p>通过给 columns 数据设置一项，指定 type: 'expand'，即可开启扩展功能。</p>
     <p>给行数据 data 的某项设置 _expanded 为 true，可以默认展开当前行，设置 _disableExpand 可以禁用当前行的展开功能。</p>
     <p>渲染展开区域与自定义列模板方法类似，使用 render 函数。当内容较复杂时，可拆分为组件或使用 JSX。</p>
-    <h-table :columns="columns10" :data="data9" @on-expand="expand" @on-row-click="rowclick" @on-row-dblclick="rowdblclick" :loading="loading"></h-table>
+    <h-table :columns="columns10" :height="300" :data="data9" @on-expand="expand" @on-row-click="rowclick" @on-row-dblclick="rowdblclick" :loading="loading" border></h-table>
     <h2>设置大小</h2>
     <p>通过设置属性 size 为 large 或 small 可以调整表格尺寸为大或小，默认不填或填写 default 为中。</p>
     <h-table size="large" :columns="columns1" :data="data1" :loading="loading"></h-table>
-    <h-table size="small" :columns="columns1" :data="data1" :loading="loading"></h-table>
+    <h-table size="small" :columns="columns1" :data="data1" :loading="loading"></h-table> 
     <h2>导出csv </h2>
     <p>通过在column中设置hiddenCol表示该列是否隐藏</p>
     <p>通过调用 exportCsv() 方法，可以将数据导出为 .csv 的表格文件，详见 API。</p>
@@ -77,28 +87,88 @@
     支持IE9~IE11、Edge、Chrome、Safari、Firefox 全系列浏览器。
     IE9、Safari 需要手动修改后缀名为 .csv。
     IE9暂时只支持英文，中文会显示为乱码。</p>
-    <h-table height="300" border :columns="columns8" :data="data7" :loading="loading" canMove></h-table>
+    <h-table height="300" border width="1000" :columns="columns8" :data="data7" :loading="loading" canMove :summationData="summationData"></h-table>
+    <p>设置maxheight 800</p>
+    <h-table maxHeight="800" border width="1000" :columns="columns8" :data="data7" :loading="loading" canMove :summationData="summationData"></h-table>
+    <br>
+    <h-table height="300" border width="1000" :columns="columns8" :data="[]" :loading="loading" canMove></h-table>
+    <h-table maxheigt="300" border width="1000" :columns="columns8" :data="[]" :loading="loading" canMove></h-table>
+    <br>
+    <h-table border :columns="columns4" :data="data1" :rowSelect="true" @on-selection-change="selsetChange" :loading="loading" :summationData="summationData1">
+      <span slot="footer">恒生电子有限公司提供</span>
+    </h-table>
+    <br>
+    
+    <h-table border :columns="columns4" :data="data1" :rowSelect="true" @on-selection-change="selsetChange" :loading="loading" :summationData="summationData1" large></h-table>
+    <br>
+    
+    <h-table border :columns="columns4" :data="data1" :rowSelect="true" @on-selection-change="selsetChange" :loading="loading" :summationData="summationData1" small></h-table>
+     <h-table height="300" width="550" border :columns="columns2" :data="[]" :loading="loading" @on-scroll="scroll"></h-table>
+     <p>设置maxheight300</p> 
+     <h-table maxHeight="300" width="550" border :columns="columns2" :data="[]" :loading="loading" @on-scroll="scroll"></h-table> 
+     <h-table height="300" width="550" border :columns="columns2" :data="data4" :loading="loading" @on-scroll="scroll"></h-table> 
+     <p>设置maxheight300</p> 
+     <h-table maxHeight="300" width="550" border :columns="columns2" :data="data4" :loading="loading" @on-scroll="scroll"></h-table> 
+     <h-table height="800" width="550" border :columns="columns2" :data="data4" :loading="loading" @on-scroll="scroll"></h-table> 
+     <p>设置maxheight800</p> 
+     <h-table maxHeight="800" width="550" border :columns="columns2" :data="data4" :loading="loading" @on-scroll="scroll"></h-table> 
     <br>
     <h-button type="primary" size="large" @click="exportData(1)"><h-icon name="document"></h-icon> 导出原始数据</h-button>
     <h-button type="primary" size="large" @click="exportData(2)"><h-icon name="document"></h-icon> 导出排序和过滤后的数据</h-button>
     <h-button type="primary" size="large" @click="exportData(3)"><h-icon name="document"></h-icon> 导出自定义数据</h-button>
     <h2>测试</h2>
-    <h-table height="300" :stripe="true" :columns="columns18" :data="data17" border size="small" ref="table" :loading="loading" :highlightRow="true" @on-selection-change="change">
+    <Button @on-click="resetSort">清除排序</Button>
+    <Button @on-click="moveUp">上移</Button>
+    <Button @on-click="moveDown">下移</Button>
+     <h-table height="300" :stripe="true" :columns="columns18" :data="data17" border size="small" ref="table" :loading="loading" :highlightRow="true" @on-selection-change="selsetChange">
+        <span slot="header">证券日活数据表</span>
+        <span slot="footer">恒生电子有限公司提供</span>
+    </h-table> 
+     <p>设置maxheight6200</p> 
+      <h-table maxHeight="6200" :stripe="true" :columns="columns18" :data="data17" border size="small" :loading="loading" :highlightRow="true" @on-selection-change="selsetChange">
+        <span slot="header">证券日活数据表</span>
+        <span slot="footer">恒生电子有限公司提供</span>
+    </h-table> 
+    <br>
+    <h-table height="300" :stripe="true" :columns="columns18" :data="[]" border size="small" :loading="loading" :highlightRow="true" @on-selection-change="selsetChange">
         <span slot="header">证券日活数据表</span>
         <span slot="footer">恒生电子有限公司提供</span>
     </h-table>
-    <br>
-    <h-table border :columns="columns6" :data="data5" no-filtered-data-text="找不到数据" :loading="loading"></h-table>
+      <br>
+     <h-table border :columns="columns6" :data="data5" no-filtered-data-text="找不到数据" :loading="loading"></h-table> 
   </div>
 </template>
 <script>
+// import printJS from 'print-js/src/index'
+let jsonData =require('../assets/aa.json'); 
 import TexpandRow from './Texpand-row.vue'
 export default {
+  name: 'tableq',
   components:{TexpandRow},
   data () {
     return {
+      bigData:jsonData,
       msgbox:false,
       loading:false,
+      multiLevel1:[
+        {title:'123',cols:2,},
+        {title:'456',},
+        // {title:'789'},
+      ],
+      multiLevel2:[
+        [
+          {title:'123',cols:2,align:'center',className:'demo-table-info-column'},
+          {title:'456',align:'right'},
+        ],
+        [
+          {title:'123',cols:2,hiddenCol:true},
+          {title:'456'},
+        ],
+        [
+          {title:'234'},
+          {title:'678',cols:2},
+        ],
+      ],
       columns18: [
          {
              type: "selection",
@@ -420,6 +490,11 @@ export default {
       ],
       columns4: [
         {
+          type: 'index',
+          width: 60,
+          align: 'center',
+        },
+        {
           type: 'selection',
           width: 60,
           align: 'center',
@@ -532,19 +607,47 @@ export default {
           title: '姓名',
           key: 'name',
           render: (h, params) => {
-            return h('div', [
-              h('h-icon', {
-                props: {
-                  name: 'addressbook'
-                }
-              }),
-              h('strong', params.row.name)
-            ]);
+            if (params.row._index==3) {
+              return h('div',{
+                  attrs:{
+                    title:'123'
+                  }
+                }, [
+                  h('h-icon', {
+                    props: {
+                      name: 'addressbook'
+                    }
+                  }),
+                  h('strong', params.row.name)
+              ]);
+            }else{
+              return h('span',params.row.name)
+            }
+
+          },
+          renderHeader:(h, params)=>{
+            console.log('renderHeader')
+            return h('span','123')
           }
         },
         {
           title: '年龄',
-          key: 'age'
+          key: 'age',
+          render:(h,params)=>{
+            return h('div', [
+              h('Input', {
+                props: {
+                  value:params.row.age,
+                },
+                on:{
+                   'on-change': (event)=>{ 
+                      // params.row.numLots = event.target.value;
+                      // this.data[params.index] = params.row;
+                  } 
+                 }
+              })
+            ])
+          }
         },
         {
           title: '地址',
@@ -613,6 +716,7 @@ export default {
           ellipsis:true
         },
         {
+          type: 'text',
           title: '地址',
           key: 'address',
           width: 200,
@@ -621,13 +725,12 @@ export default {
         {
           title: '邮编',
           key: 'zip',
-          width: 100,
+          width: 120,
           ellipsis:true
         },
         {
           title: '操作',
           key: 'action',
-          width: 120,
           fixed: 'right',
           render: (h, params) => {
             return h('div', [
@@ -650,15 +753,25 @@ export default {
       ],
       columns8: [
         {
+          type: 'index',
+          width: 60,
+          align: 'center'
+        },
+        {
+          type: 'selection',
+          width: 60,
+          align: 'center',
+        },
+        
+        {
           title: "名称",
           key: "name",
           width: 100,
-          fixed: "left",
+          // fixed: "right",
         },
         {
           title: "展示",
           key: "show",
-          width: 150,
           sortable: true,
           // fixed: "left",
           // hiddenCol:true,//通过在column中设置hiddenCol表示该列是否隐藏
@@ -681,70 +794,70 @@ export default {
             }
           }
         },
-        {
-          title: "唤醒",
-          key: "weak",
-          width: 150,
-          sortable: true,
-          // hiddenCol:true,
-        },
-        {
-          title: "登录",
-          key: "signin",
-          width: 150,
-          sortable: true
-        },
-        {
-          title: "点击",
-          key: "click",
-          width: 150,
-          sortable: true
-        },
-        {
-          title: "激活",
-          key: "active",
-          width: 150,
-          sortable: true
-        },
-        {
-          title: "7日留存",
-          key: "day7",
-          width: 150,
-          // sortable: true
-        },
-        {
-          title: "30日留存",
-          key: "day30",
-          width: 150,
-          // sortable: true
-        },
-        {
-          title: "次日留存",
-          key: "tomorrow",
-          width: 150,
-          // sortable: true
-        },
-        {
-          title: "日活跃",
-          key: "day",
-          width: 150,
-          // sortable: true
-        },
-        {
-          title: "周活跃",
-          key: "week",
-          width: 150,
-          // fixed: "right",
-          // sortable: true
-        },
-        {
-          title: "月活跃",
-          key: "month",
-          width: 150,
+        // {
+        //   title: "唤醒",
+        //   key: "weak",
+        //   width: 150,
+        //   sortable: true,
+        //   // hiddenCol:true,
+        // },
+        // {
+        //   title: "登录",
+        //   key: "signin",
+        //   width: 150,
+        //   sortable: true
+        // },
+        // {
+        //   title: "点击",
+        //   key: "click",
+        //   width: 150,
+        //   sortable: true
+        // },
+        // {
+        //   title: "激活",
+        //   key: "active",
+        //   width: 150,
+        //   sortable: true
+        // },
+        // {
+        //   title: "7日留存",
+        //   key: "day7",
+        //   width: 150,
+        //   // sortable: true
+        // },
+        // {
+        //   title: "30日留存",
+        //   key: "day30",
+        //   width: 150,
+        //   // sortable: true
+        // },
+        // {
+        //   title: "次日留存",
+        //   key: "tomorrow",
+        //   width: 150,
+        //   // sortable: true
+        // },
+        // {
+        //   title: "日活跃",
+        //   key: "day",
+        //   width: 150,
+        //   // sortable: true
+        // },
+        // {
+        //   title: "周活跃",
+        //   key: "week",
+        //   width: 150,
+        //   // fixed: "right",
+        //   // sortable: true
+        // },
+        // {
+        //   title: "月活跃",
+        //   key: "month",
+        //   width: 150,
 
-          // fixed: "right",
-          // sortable: true
-        }
+        //   // fixed: "right",
+        //   // sortable: true
+        // }
       ],
       columns9: [
         {
@@ -795,8 +908,8 @@ export default {
         {
           name: '王小明',
           age: 18,
-          address: '北京市朝阳区\r芍药居'
-          // _highlight: true//默认选择当前项
+          address: '北京市朝阳区\r芍药居',
+          _highlight: true//默认选择当前项
         },
         {
           name: '张小刚',
@@ -858,9 +971,9 @@ export default {
       ],
       data3: [
         {
-          name: '王小明',
+          name: '<b>王小明',
           age: 18,
-          address: '北京市朝阳\r区芍药居',
+          address: '<b>北京市朝阳\r区芍药居</b>',
           province: '北京市',
           city: '朝阳区',
           zip: 100000
@@ -1160,7 +1273,8 @@ export default {
         {
           name: '王小明',
           age: 18,
-          address: '北京市朝阳区芍药居'
+          address: '北京市朝阳区芍药居',
+          _disabled:true,
         },
         {
           name: '张小刚',
@@ -1169,12 +1283,14 @@ export default {
           cellClassName: {
               age: 'demo-table-info-cell-age',
               address: 'demo-table-info-cell-address'
-          }
+          },
+          _disabled:true,
         },
         {
           name: '李小红',
           age: 30,
-          address: '上海市浦东新区世纪大道'
+          address: '上海市浦东新区世纪大道',
+          _disabled:true,
         },
         {
           name: '周小伟',
@@ -1182,7 +1298,8 @@ export default {
           address: '深圳市南山区深南大道',
           cellClassName: {
               name: 'demo-table-info-cell-name'
-          }
+          },
+          _disabled:true,
         }
       ],
       data9: [
@@ -1230,10 +1347,273 @@ export default {
           movie: '倩女幽魂',
           music: '演员'
         }
-      ]
+      ],
+      aaa: '',
+      summationData: [{
+        name: '12313',
+        fav: 0,
+        show: 730211221,
+        weak: 5627223123,
+        signin: 1563123123,
+        click: 425413,
+        active: 1438123,
+        day7: 27412312,
+        day30: 285123,
+        tomorrow: 1727123,
+        day: 558,
+        week: 4440,
+        month: 5610
+      }],
+      summationData1: [{
+          name: 'qeqweqw',
+          age: 123123123,
+          address: 'qqweqwe'
+        }]
     }
   },
   methods:{
+    changeHidden(){
+      this.$set(this.columns1[3],'hiddenCol',!this.columns1[3].hiddenCol);
+    },
+    setMult(){
+      this.$set(this.multiLevel1[0],'hiddenCol',true);
+    },
+    getData () {
+      this.data7 = [{
+          name: "推广名称1qweqwe",
+          fav: 0,
+          show: 7302,
+          weak: 5627,
+          signin: 1563,
+          click: 4254,
+          active: 1438,
+          day7: 274,
+          day30: 285,
+          tomorrow: 1727,
+          day: 558,
+          week: 4440,
+          month: 5610
+        },{
+          name: "推广名称1qweqweqwe",
+          fav: 0,
+          show: 7302,
+          weak: 5627,
+          signin: 1563,
+          click: 4254,
+          active: 1438,
+          day7: 274,
+          day30: 285,
+          tomorrow: 1727,
+          day: 558,
+          week: 4440,
+          month: 5610
+        },{
+          name: "推广名称1sqeqwewe",
+          fav: 0,
+          show: 7302,
+          weak: 5627,
+          signin: 1563,
+          click: 4254,
+          active: 1438,
+          day7: 274,
+          day30: 285,
+          tomorrow: 1727,
+          day: 558,
+          week: 4440,
+          month: 5610
+        },{
+          name: "推广名称1sqeqwewe",
+          fav: 0,
+          show: 7302,
+          weak: 5627,
+          signin: 1563,
+          click: 4254,
+          active: 1438,
+          day7: 274,
+          day30: 285,
+          tomorrow: 1727,
+          day: 558,
+          week: 4440,
+          month: 5610
+        },{
+          name: "推广名称1sqeqwewe",
+          fav: 0,
+          show: 7302,
+          weak: 5627,
+          signin: 1563,
+          click: 4254,
+          active: 1438,
+          day7: 274,
+          day30: 285,
+          tomorrow: 1727,
+          day: 558,
+          week: 4440,
+          month: 5610
+        },{
+          name: "推广名称1sqeqwewe",
+          fav: 0,
+          show: 7302,
+          weak: 5627,
+          signin: 1563,
+          click: 4254,
+          active: 1438,
+          day7: 274,
+          day30: 285,
+          tomorrow: 1727,
+          day: 558,
+          week: 4440,
+          month: 5610
+        },{
+          name: "推广名称1sqeqwewe",
+          fav: 0,
+          show: 7302,
+          weak: 5627,
+          signin: 1563,
+          click: 4254,
+          active: 1438,
+          day7: 274,
+          day30: 285,
+          tomorrow: 1727,
+          day: 558,
+          week: 4440,
+          month: 5610
+        },{
+          name: "推广名称1sqeqwewe",
+          fav: 0,
+          show: 7302,
+          weak: 5627,
+          signin: 1563,
+          click: 4254,
+          active: 1438,
+          day7: 274,
+          day30: 285,
+          tomorrow: 1727,
+          day: 558,
+          week: 4440,
+          month: 5610
+        },{
+          name: "推广名称1sqeqwewe",
+          fav: 0,
+          show: 7302,
+          weak: 5627,
+          signin: 1563,
+          click: 4254,
+          active: 1438,
+          day7: 274,
+          day30: 285,
+          tomorrow: 1727,
+          day: 558,
+          week: 4440,
+          month: 5610
+        },{
+          name: "推广名称1sqeqwewe",
+          fav: 0,
+          show: 7302,
+          weak: 5627,
+          signin: 1563,
+          click: 4254,
+          active: 1438,
+          day7: 274,
+          day30: 285,
+          tomorrow: 1727,
+          day: 558,
+          week: 4440,
+          month: 5610
+        },{
+          name: "推广名称1sqeqwewe",
+          fav: 0,
+          show: 7302,
+          weak: 5627,
+          signin: 1563,
+          click: 4254,
+          active: 1438,
+          day7: 274,
+          day30: 285,
+          tomorrow: 1727,
+          day: 558,
+          week: 4440,
+          month: 5610
+        },{
+          name: "推广名称1sqeqwewe",
+          fav: 0,
+          show: 7302,
+          weak: 5627,
+          signin: 1563,
+          click: 4254,
+          active: 1438,
+          day7: 274,
+          day30: 285,
+          tomorrow: 1727,
+          day: 558,
+          week: 4440,
+          month: 5610
+        },{
+          name: "推广名称1sqeqwewe",
+          fav: 0,
+          show: 7302,
+          weak: 5627,
+          signin: 1563,
+          click: 4254,
+          active: 1438,
+          day7: 274,
+          day30: 285,
+          tomorrow: 1727,
+          day: 558,
+          week: 4440,
+          month: 5610
+        },{
+          name: "推广名称1sqeqwewe",
+          fav: 0,
+          show: 7302,
+          weak: 5627,
+          signin: 1563,
+          click: 4254,
+          active: 1438,
+          day7: 274,
+          day30: 285,
+          tomorrow: 1727,
+          day: 558,
+          week: 4440,
+          month: 5610
+        },{
+          name: "推广名称1sqeqwewe",
+          fav: 0,
+          show: 7302,
+          weak: 5627,
+          signin: 1563,
+          click: 4254,
+          active: 1438,
+          day7: 274,
+          day30: 285,
+          tomorrow: 1727,
+          day: 558,
+          week: 4440,
+          month: 5610
+        }]
+    },
+    refresh () {
+      debugger
+      //  this.$route.meta.isKeepAlive = false
+       this.$parent.isKeepAlive = false
+        // this.$store.dispatch('refreshCurPage', 'table')
+          // this.$route.meta.comName = ''
+          this.$parent.page = ''
+        
+        this.$nextTick(() => {
+       this.$parent.isKeepAlive = true
+          
+          // this.$route.meta.isKeepAlive = true
+          // this.$route.meta.isDestroy = false
+          // this.$route.meta.comName = 'table'
+          this.$parent.page = 'tableq'
+          
+          
+          // this.$store.dispatch('addRouteKeepAlive', 'table')
+        })
+    },
+    resetSort(){
+      this.$refs.table.handleSort('all','normal');
+    },
     changemsg(){
       this.msgbox = !this.msgbox;
     },
@@ -1284,9 +1664,10 @@ export default {
       }
       return '';
     },
-    radioChange (currentRow,oldRow){
+    radioChange (currentRow,oldRow,index){
       console.log(currentRow);
       console.log(oldRow);
+      console.log(index);
     },
     allSelect (allSelection){
       console.log(allSelection);
@@ -1295,8 +1676,9 @@ export default {
       console.log(selection);
       console.log(row);
     },
-    selsetChange (selection){//选项发生变化时触发已选择的项
+    selsetChange (selection,inx){//选项发生变化时触发已选择的项
       console.log(selection);
+      console.log(inx);
     },
     show (index) {
       this.$hMsgBox.info({
@@ -1324,55 +1706,77 @@ export default {
             data: this.data7.filter((data, index) => index < 4)
         });
       }
+    },
+    moveUp(){
+
+    },
+    moveDown(){
+      
     }      
   },
   mounted(){
-    this.columns1=[{
+    this.columns1=[
+        { 
+          type: 'selection',
+          align: 'center',
+          width:200
+        },
+        {
           title: '姓名',
           key: 'name',
           align: 'center',
+          width:200
         },
         {
           title: '年龄',
           key: 'age',
+          width:200
         },
         {
           title: '地址',
           ellipsis:true,
           key: 'address',
-          sortType:'asc',
+          hiddenCol:true,
         },
-        {
-          title: '地址1',
-          key: 'address1',
-          sortType:'asc',
-        },
-        {
-          title: '地址2',
-          key: 'address2',
-          sortType:'asc',
-        },
-        {
-          title: '地址3',
-          key: 'address3',
-          sortType:'asc',
-        },
-        {
-          title: '地址4',
-          key: 'address4',
-          sortType:'asc',
-        },
-        {
-          title: '地址5',
-          key: 'address5',
-          sortType:'asc',
-        },
-        {
-          title: '地址6',
-          key: 'address6',
-          sortType:'asc',
-        }]
+        // {
+        //   title: '地址1',
+        //   key: 'address1',
+        // },
+        // {
+        //   title: '地址2',
+        //   key: 'address2',
+        // },
+        // {
+        //   title: '地址3',
+        //   key: 'address3',
+        // },
+        // {
+        //   title: '地址4',
+        //   key: 'address4',
+        //   sortType:'asc',
+        // },
+        // {
+        //   title: '地址5',
+        //   key: 'marketNo',
+        //   sortType:'asc',
+        // },
+        // {
+        //   title: '地址6',
+        //   key: 'tradeQuantity',
+        //   sortType:'asc',
+        // }
+    ]
+  },
+  beforeCreate(){
+    const data1 = (new Date()).valueOf();
+    console.log('开始创建时间'+data1)
+    this.$nextTick(()=>{
+      const data2 = (new Date()).valueOf();
+      console.log('结束创建时间'+data2)
+      console.log('时间差异'+(data2-data1))
+    })
   }
+
 }
 </script>
 <style type="text/css">
@@ -1385,6 +1789,10 @@ export default {
   color: #fff;
 }
 .h-table td.demo-table-info-column{
+  background-color: #2db7f5!important;
+  color: #fff;
+}
+.h-table th.demo-table-info-column{
   background-color: #2db7f5!important;
   color: #fff;
 }
@@ -1404,4 +1812,5 @@ export default {
   background-color: #7eb8f1;
   text-align: center;
 }
+
 </style>

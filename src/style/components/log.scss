@@ -1,0 +1,41 @@
+$split-prefix-cls: "#{$css-prefix}log";
+
+
+.#{$split-prefix-cls} {
+    width: 100%;
+    border: solid 1px $border-color-base;
+    background-color: #000;
+    color: #fff;
+    position: relative;
+    &-content{
+        width: 100%;
+        padding:15px 10px 25px 10px;
+        overflow: auto;
+    }
+    &-item {
+        width: 100%;
+    }
+    &-warn{
+        color: $warning-color;
+    }
+    &-error{
+        color: $error-color;
+    }
+    &-debugger{
+        color: $success-color;
+    }
+    &-footer{
+        padding: 10px;
+        border-top: solid 1px $border-color-base;
+        overflow: auto;
+        .h-btn{
+            float: right;
+            background: #000;
+            color: #fff
+        }
+        .h-btn:hover{
+            border-color: #fff;
+            color: #fff;
+        }
+    }
+}

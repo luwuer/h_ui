@@ -5,6 +5,7 @@ $date-picker-cells-width: 196px;
 $date-picker-cells-width-with-weeknumbers: 226px;
 
 .#{$date-picker-prefix-cls} {
+  height: $form-component-height;
   position: relative;
   // display: inline-block;
   line-height: normal;
@@ -234,7 +235,7 @@ $date-picker-cells-width-with-weeknumbers: 226px;
       margin-top: 4px;
       text-align: center;
       cursor: pointer;
-      color: $btn-disable-color;
+      color: $icon-color;
       transition: color $transition-time $ease-in-out;
       &:hover{
         color: $primary-color;
@@ -268,7 +269,7 @@ $date-picker-cells-width-with-weeknumbers: 226px;
       white-space: nowrap;
 
       &:hover{
-        background: $border-color-split;
+        background: $date-picker-panel-shortcut-hover-bg;
       }
     }
     &-body{
@@ -277,7 +278,7 @@ $date-picker-cells-width-with-weeknumbers: 226px;
   }
 
   &-confirm{
-    border-top: 1px solid $border-color-split;
+    border-top: 1px solid #DCE1E7;
     text-align: right;
     padding: 8px;
     clear: both;

@@ -1,2 +1,49 @@
 $checkbox-prefix-cls: "#{$css-prefix}checkbox";
+$checkbtn-prefix-cls: "#{$css-prefix}checkbtn";
 @include checkboxFn();
+.#{$checkbtn-prefix-cls}{
+    &-wrapper{
+        // display: inline-block;
+        display: block;
+        position: relative;
+        height: $form-component-height;
+        line-height: $form-component-height;
+        padding: 0 15px;
+        border: solid 1px $border-color-base;
+        border-radius: 4px;
+        font-size: $font-size-small;
+        cursor: pointer;
+        user-select: none;
+
+    }
+    &-wrapper-selected{
+        border: solid 1px $primary-color;
+        color: $primary-color;
+        .#{$checkbtn-prefix-cls}-icon{
+            position: absolute;
+            right: 0;
+            top:0;
+            width:0;
+            height:0;
+            border-width: 0 20px 20px 0;
+            border-style:solid;
+            border-color: transparent $primary-color transparent transparent;
+            i{
+                font-size: 10px;
+                position: absolute;
+                top: -9px;
+                right: -20px;
+                color: #fff;
+            }
+        }
+    }
+    &-wrapper-disabled{
+        &,
+        &:hover,
+        &:focus,
+        &:active,
+        &.active {
+            @include button-color($btn-disable-color, $btn-disable-bg, $btn-disable-border);
+        }
+    }
+}

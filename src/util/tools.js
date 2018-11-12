@@ -288,6 +288,30 @@ function typeOf(obj) {
   return map[toString.call(obj)];
 }
 export {typeOf};
+// deepCopyEx
+function deepCopyEx (data, exAttr) {
+  const t = typeOf(data);
+  let o;
+  if (t === 'array') {
+    o = [];
+  } else if ( t === 'object') {
+    o = {};
+  } else {
+    return data;
+  }
+
+  if (t === 'array') {
+    for (let i = 0; i < data.length; i++) {
+      o.push(deepCopy(data[i]));
+    }
+  } else if ( t === 'object') {
+    for (let i in data) {
+      if (exAttr.indexOf(i) < 0) o[i] = deepCopyEx(data[i], exAttr);
+    }
+  }
+  return o;
+}
+export {deepCopyEx};
 // deepCopy
 function deepCopy(data) {
   const t = typeOf(data);
@@ -492,7 +516,7 @@ export function toFix(d){
   // };  
 }
 function vliData(num) {
-  return num>10?num:'0'+num;
+  return num>=10?num:'0'+num;
 }
 export function getYMD(data,str,num){
   data.setDate(data.getDate() + num);
@@ -586,12 +610,15 @@ export function isdate(intYear,intMonth,intDay){
 let timer 
 // 滚动公用方法
 export function scrollAnimate(obj,curTop,newTop){
+  let status=curTop<newTop?true:false;
+  let offset = Math.abs(Number(curTop-newTop))
+  let ins = 500/offset>1?1:500/offset;
   clearInterval(timer);
   timer = setInterval(()=>{
-    curTop = curTop<newTop?curTop+1:curTop-1;
+    curTop = status?curTop+1:curTop-1;
     obj.scrollTop = curTop;
     if (curTop==newTop) {
       clearInterval(timer);
     }
-  },5);
+  },ins);
 }

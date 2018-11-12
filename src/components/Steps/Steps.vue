@@ -31,6 +31,22 @@
           return oneOf(value, ['horizontal', 'vertical']);
         },
         default: 'horizontal'
+      },
+      processIcon: {
+        type: String,
+        default: ""
+      },
+      waitIcon: {
+        type: String,
+        default: ""
+      },
+      finishIcon: {
+        type: String,
+        default: "right"
+      },
+      errorIcon: {
+        type: String,
+        default: "close"
       }
     },
     computed: {

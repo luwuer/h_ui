@@ -21,7 +21,7 @@ export default {
   components: { DatePickerPanel, RangeDatePickerPanel },
   computed: {
     panel(){
-        const isRange =  this.type === 'daterange' || this.type === 'datetimerange';
+        const isRange =  this.type === 'daterange' || this.type === 'datetimerange'||this.showTwoPanel;
         return isRange ? 'RangeDatePickerPanel' : 'DatePickerPanel';
     },
     ownPickerProps(){

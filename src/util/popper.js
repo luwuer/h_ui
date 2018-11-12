@@ -395,6 +395,7 @@
         // If the reference element is inside a fixed context, the popper will be fixed as well to allow them to scroll together
         var isParentFixed = isFixed(container);
         if (popper.className.indexOf('h-poptip-popper')!=-1) isParentFixed=false;
+        if (popper.className.indexOf('h-select-dropdown')!=-1) isParentFixed=false;
         return isParentFixed ? 'fixed' : 'absolute';
     };
 

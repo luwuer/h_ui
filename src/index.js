@@ -50,14 +50,28 @@ import Typefield from './components/Typefield';
 import Upload from './components/Upload';
 import Row from './components/Grid';
 import Select from './components/Select';
+import SimpleSelect from './components/SimpleSelect';
 import EditGird from './components/EditGird';
 import GroupTable from './components/GroupTable';
 import TreeGird from './components/TreeGird';
+import AsycTreeGird from './components/AsycTreeGird';
 import SelectTable from './components/SelectTable';
 import FastDate from './components/FastDate';
 import SplicePanel from './components/SplicePanel';
 import FieldPanel from './components/Panel';
+import SimpleTable from './components/SimpleTable';
+import TransferTable from './components/TransferTable';
+import FormGird from './components/FormGird';
+import Rate from './components/Rate';
+import Textdiff from './components/Textdiff';
+import TypefieldRange from './components/TypefieldRange';
+import Split from './components/Split';
+import Drawer from './components/Drawer';
+import Log from './components/Log';
+// import FileImport from './components/FileImport';
+// import FileExport from './components/FileExport';
 import locale from './locale';
+
 
 const h_ui = {
     Affix,
@@ -92,6 +106,8 @@ const h_ui = {
     hCheckbox: Checkbox,
     CheckboxGroup: Checkbox.Group,
     hCheckboxGroup: Checkbox.Group,
+    Checkbtn:Checkbox.Btn,
+    hCheckbtn: Checkbox.Btn,
     // Circle,
     hCircle: Circle,
     Row,
@@ -150,6 +166,10 @@ const h_ui = {
     hSelect: Select,
     Option: Select.Option,
     hOption: Select.Option,
+    SimpleSelect:SimpleSelect,
+    hSimpleSelect:SimpleSelect,
+    hSelectBlock:SimpleSelect.Block,
+    hSelectBlock:SimpleSelect.Block,
     OptionGroup: Select.OptionGroup,
     hOptionGroup: Select.OptionGroup,
     SelectTree,
@@ -192,6 +212,8 @@ const h_ui = {
     hGroupTable:GroupTable,
     TreeGird,
     hTreeGird:TreeGird,
+    AsycTreeGird,
+    hAsycTreeGird:AsycTreeGird,
     SelectTable:SelectTable,
     hSelectTable:SelectTable,
     hTableOption:SelectTable.Option,
@@ -201,7 +223,29 @@ const h_ui = {
     SplicePanel:SplicePanel,   
     hSplicePanel:SplicePanel,
     FieldPanel:FieldPanel,
-    hFieldPanel:FieldPanel  
+    hFieldPanel:FieldPanel,
+    SimpleTable:SimpleTable,
+    hSimpleTable:SimpleTable,
+    TransferTable:TransferTable,
+    hTransferTable:TransferTable,
+    FormGird:FormGird,    
+    hFormGird:FormGird,
+    Rate:Rate,
+    hRate:Rate,  
+    Textdiff,
+    hTextdiff: Textdiff,
+    TypefieldRange,
+    hTypefieldRange:TypefieldRange,
+    Split:Split,  
+    hSplit:Split,  
+    Drawer:Drawer,
+    hDrawer:Drawer,
+    Log:Log,
+    hLog:Log
+    // FileImport:FileImport,
+    // hFileImport:FileImport,
+    // FileExport: FileExport,
+    // hFileExport: FileExport
 };
 const install = function(Vue, opts = {}) {
     locale.use(opts.locale);

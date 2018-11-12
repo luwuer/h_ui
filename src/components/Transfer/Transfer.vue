@@ -3,6 +3,7 @@
   import Operation from './Operation.vue';
   import Locale from '../../mixins/locale';
   import Emitter from '../../mixins/emitter';
+  import {deepCopy} from '../../util/tools'
 
   const prefixCls = 'h-transfer';
 
@@ -21,11 +22,11 @@
         cloned.ns = vnode.ns;
         cloned.isStatic = vnode.isStatic;
         cloned.key = vnode.key;
-
         return cloned;
       }
 
       const vNodes = this.$slots.default === undefined ? [] : this.$slots.default;
+      const opNodes = this.$slots.operation === undefined ? [] : this.$slots.operation;
       const clonedVNodes = this.$slots.default === undefined ? [] : vNodes.map(vnode => cloneVNode(vnode));
 
       return h('div', {
@@ -45,12 +46,13 @@
             filterPlaceholder: this.localeFilterPlaceholder,
             filterMethod: this.filterMethod,
             notFoundText: this.localeNotFoundText,
-            notFoundData: this.localeNotFoundData
+            notFoundData: this.localeNotFoundData,
+            direcPanel:'left',
           },
           on: {
             'on-checked-keys-change': this.handleLeftCheckedKeysChange
           }
-        }, vNodes),
+        }, [vNodes,]),
 
         h(Operation, {
           props: {
@@ -59,7 +61,7 @@
             leftActive: this.leftValidKeysCount > 0,
             rightActive: this.rightValidKeysCount > 0
           }
-        }),
+        },[opNodes]),
 
         h(List, {
           ref: 'right',
@@ -75,10 +77,12 @@
             filterPlaceholder: this.localeFilterPlaceholder,
             filterMethod: this.filterMethod,
             notFoundText: this.localeNotFoundText,
-            notFoundData: this.localeNotFoundData
+            notFoundData: this.localeNotFoundData,
+            direcPanel:'right',
           },
           on: {
-            'on-checked-keys-change': this.handleRightCheckedKeysChange
+            'on-checked-keys-change': this.handleRightCheckedKeysChange,
+            'on-right-drag-change': this.handleRightDragChange
           }
         }, clonedVNodes)
       ]);
@@ -142,7 +146,11 @@
       },
       notFoundData: {
         type: String
-      }
+      },
+      contentSplit:{//理财5.0，穿梭左右联动分离 
+        type:Boolean,
+        default:false
+      },
     },
     data () {
       return {
@@ -208,7 +216,7 @@
             this.targetKeys.forEach((targetKey) => {
               const filteredData = this.leftData.filter((data, index) => {
                 if (data.key === targetKey) {
-                  this.leftData.splice(index, 1);
+                  if(!this.contentSplit) this.leftData.splice(index, 1);
                   return true;
                 }
                 return false;
@@ -219,6 +227,44 @@
           if (init) {
             this.splitSelectedKey();
           }
+      },
+      addRight(item){
+        const curInx = this.leftCheckedKeys.indexOf(item.key);
+        if(curInx==-1) this.leftCheckedKeys.push(item.key);
+        this.rightData.push(item);
+        this.rightChange();
+      },
+      deleteRight(item){
+        const curInx = this.leftCheckedKeys.indexOf(item.key);
+        if(curInx>-1) this.leftCheckedKeys.splice(curInx,1);
+        let index=-1;
+        this.rightData.forEach((col,i)=>{
+          if(col.key == item.key){
+            index=i;
+          }
+        })
+        this.rightData.splice(index,1);     
+        this.rightChange();
+      },
+      operationsChange(){
+        const keys = this.leftData.filter(data => !data.disabled || this.checkedKeys.indexOf(data.key) > -1).map(data => data.key)
+        this.leftCheckedKeys = keys;
+        this.changeRight(true)
+      },
+      changeRight(status){
+        if(status){
+          this.rightData=deepCopy(this.leftData);
+        }else{
+          this.rightData=[];
+          this.leftCheckedKeys = [];
+        }
+        this.rightChange();
+      },
+      rightChange(){
+        this.$emit('on-change',this.rightData);
+        this.dispatch('FormItem', 'on-form-change', {
+          tarketKeys: this.rightData,
+        });
       },
       splitSelectedKey () {
         const selectedKeys = this.selectedKeys;
@@ -267,6 +313,9 @@
       },
       handleRightCheckedKeysChange (keys) {
         this.rightCheckedKeys = keys;
+      },
+      handleRightDragChange (data) {
+        this.$emit('on-right-drag', data)
       }
     },
     watch: {

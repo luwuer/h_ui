@@ -1,15 +1,38 @@
+<style type="text/css" scoped>
+  .nide span {
+    display: inline-block;
+    height: 36px;
+    line-height: 36px;
+    overflow: auto;
+    margin-bottom: -4px;
+  }
+  .nide span > div{
+    float: right;
+    margin-left: 5px;
+    height: 36px;
+    line-height: 18px;
+  }
+</style>
 <template>
   <div>
+    <h-button-group class="nide">
+        <h-button>增加层次</h-button>
+        <h-button>增加层次</h-button>
+        <h-button><input type="checkbox" name=""><div>过滤没有股<br>票池的层次</div></h-button>
+    </h-button-group>
+
+
     <h1>基础按钮</h1>
     <i class="icon iconfont icon-arrowdownb"></i>
     <button ref="exp" >bbb</button>
     <button @click="fclick">aaa</button>
 
-    <h-button>Default</h-button>
+    <h-button title="123">Default</h-button>
     <h-button ref="btn" type="primary" @click="btnClick" canFocus>Primary</h-button>
     <h-button type="ghost" canFocus>Ghost</h-button>
     <h-button type="dashed" canFocus>Dashed</h-button>
     <h-button type="text" canFocus>Text</h-button>
+    <h-button type="danger" canFocus>Danger</h-button>
     <br><br>
     <h-button type="info">信息按钮</h-button>
     <h-button type="success">成功按钮</h-button>
@@ -17,7 +40,9 @@
     <h-button type="error">错误按钮</h-button>
     <h1>带图标按钮</h1>
     <h-icon name="search"></h-icon>
+    <h-button type="primary" shape="circle" size='large' icon="search"></h-button>
     <h-button type="primary" shape="circle" icon="search"></h-button>
+    <h-button type="primary" shape="circle" size='small' icon="search"></h-button>
     <h-button type="primary" icon="search">搜索</h-button>
     <h-button type="primary" shape="circle" icon="search">搜索</h-button>
     <h-button type="primary" shape="circle">圆角按钮</h-button>
@@ -31,16 +56,16 @@
     <h-button type="primary">Default</h-button>
     <h-button type="primary" size="small">Small</h-button>
     <br><br>
-    <h-button type="primary" shape="circle" size="large">Large</h-button>
-    <h-button type="primary" shape="circle">Default</h-button>
-    <h-button type="primary" shape="circle" size="small">Small</h-button>
+    <h-button type="primary" shape="circle" size="large" icon="search">Large</h-button>
+    <h-button type="primary" shape="circle" icon="search">Default</h-button>
+    <h-button type="primary" shape="circle" size="small" icon="search">Small</h-button>
     <h1>长按钮</h1>
     <h-button type="success" long>确认提交</h-button>
     <br><br>
     <h-button type="error" long>确认删除</h-button>
     <h1>不可用状态</h1>
-    <h-button>Default</h-button>
-    <h-button disabled>Default(Disabled)</h-button>
+    <h-button @click="setDisabled">Default</h-button>
+    <h-button :disabled="isDisabled">Default(Disabled)</h-button>
     <br><br>
     <h-button type="primary">Primary</h-button>
     <h-button type="primary" disabled>Primary(Disabled)</h-button>
@@ -161,9 +186,13 @@ export default {
   name: 'buttons',
   data() {
     return {
+        isDisabled:false,
     }
   },
   methods:{
+    setDisabled(){
+        this.isDisabled = !this.isDisabled
+    },
     btnClick(){
       console.log('按钮被点击了！');
     },
@@ -173,5 +202,3 @@ export default {
   },
 }
 </script>
-<style type="text/css">
-</style>

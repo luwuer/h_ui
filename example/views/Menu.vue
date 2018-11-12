@@ -48,7 +48,7 @@
       <br>
       <h-row>
       <h-col span="8">
-          <h-menu  mode="vertical" :theme="theme2"  active-name="2" :open-names="['1','3']" :accordion="false" @on-open-change="openChange" :width="120">
+          <h-menu  mode="vertical" :theme="theme2"  active-name="2" :open-names="openName" :accordion="false" @on-open-change="openChange" :width="120" @on-select="s">
           <h-submenu name="1">
               <template slot="title">
                   <h-icon name="ios-paper"></h-icon>
@@ -82,6 +82,7 @@
               </h-menu-group>
           </h-submenu>
           </h-menu>
+          <Button @on-click="setOpen">动态设置openName</Button>
       </h-col>
       <h-col span="8">
           <h-menu :theme="theme2" active-name="1-2" :open-names="['1']">
@@ -92,7 +93,16 @@
                   </template>
                   <h-menu-item name="1-1">文章管理</h-menu-item>
                   <h-menu-item name="1-2">评论管理</h-menu-item>
-                  <h-menu-item name="1-3">举报管理</h-menu-item>
+                  <!-- <h-menu-item name="1-3"> -->
+                  <h-submenu name="1-3">
+                  <template slot="title">
+                      <h-icon name="ios-paper"></h-icon>
+                      举报管理
+                  </template> 
+                  <h-menu-item name="1-3-1">举报管理1</h-menu-item>
+                  <h-menu-item name="1-3-2">举报管理2</h-menu-item>
+                </h-submenu>
+                  <!-- </h-menu-item> -->
               </h-submenu>
               <h-submenu name="2">
                   <template slot="title">
@@ -241,7 +251,7 @@
       </h-radio-group>
       <h-row>
           <h-col span='12'>
-              <h-menu theme="dark" active-name="1-2" :open-names="['1']" :collapse="isCollapse ==='true'" @on-open-change="openChange">
+              <h-menu theme="dark" vertiSide shrinkClose active-name="1-2" :open-names="['1']" :collapse="isCollapse ==='true'" @on-open-change="openChange" @on-select="s">
                   <h-submenu name="1">
                       <template slot="title">
                           <h-icon name="computer"></h-icon>
@@ -249,7 +259,7 @@
                       </template>
                       <h-menu-item name="1-1">文章管理</h-menu-item>
                       <h-menu-item name="1-2">评论管理</h-menu-item>
-                      <h-submenu name="1-3">
+                      <h-submenu name="1-3" showSlide>
                           <template slot="title">
                               <h-icon name="computer"></h-icon>
                               <span slot="title">举报管理</span>
@@ -390,7 +400,8 @@ export default {
       theme3: 'light',
       isCollapse: 'true',
       cdata:cData,
-      csName:''
+      csName:'',
+      openName:[],
     }
   },
   methods: {
@@ -398,7 +409,7 @@ export default {
       console.log(s)
     },
     openChange(s){
-        // console.log(s)
+        console.log(s)
     },
     activetest() {
       // this.active = ["2"];
@@ -417,6 +428,9 @@ export default {
         // console.log();
         // this.$refs.csMenu.updateActiveName();
       });
+    },
+    setOpen(){
+        this.openName = ['1','3'];
     }
   }
 }

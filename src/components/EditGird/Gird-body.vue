@@ -13,8 +13,9 @@
           @mouseenter.native.stop="handleMouseIn(row._index)"
           @mouseleave.native.stop="handleMouseOut(row._index)"
           @click.native="clickCurrentRow(row._index)">
-          <td v-for="(column,inx) in columns" :class="alignCls(column, row)">
+          <td v-for="(column,inx) in columns" :class="alignCls(column, row)" :key="inx">
             <Cell
+              :fixed="fixed"
               :prefix-cls="prefixCls"
               :row="row"
               :key="column._columnKey"
@@ -27,7 +28,7 @@
               :disabled="rowDisabled(row._index)"
               :expanded="rowExpanded(row._index)"
               :showEditInput="showEditInput"
-              :option="option[inx]"
+              :option="selectOption[inx]"
               :treeOption="treeOption[inx]"
               @on-editselect-change="editselectChange"
               @on-editinput-change="editinputChange"
@@ -88,7 +89,7 @@
           @mouseenter.native.stop="handleMouseIn(row._index)"
           @mouseleave.native.stop="handleMouseOut(row._index)"
           @click.native="clickCurrentRow(row._index)">
-          <td v-for="(column,inx) in columns" :class="alignCls(column, row)">
+          <td v-for="(column,inx) in columns" :class="alignCls(column, row)" :key="inx">
             <Cell
               :prefix-cls="prefixCls"
               :row="row"
@@ -102,8 +103,10 @@
               :disabled="rowDisabled(row._index)"
               :expanded="rowExpanded(row._index)"
               :showEditInput="showEditInput"
+              :option="selectOption[inx]"
+              :treeOption="treeOption[inx]"
             >
-              <span v-if="inx==(columns[0].type=='index'?1:0)">
+              <span v-if="columns.length>0 && inx==(columns[0].type=='index'?1:0)">
                 <Icon name = "play_fill" :class="iconClass(row._index)" v-if="row.children && row.children.length!=0" @on-click="toggleExpand(row._index,$event)"></Icon>
                 <Checkbox v-if="isCheckbox" :value="row.checked" :indeterminate="row.indeterminate" @on-click="changeSelect(row,$event)"></Checkbox> 
               </span>
@@ -111,18 +114,21 @@
           </td>
         </table-tr>
         <collapse-transition>
-        <Tree-table
-          v-if="objData[row._index]._isExpanded && row.children && row.children.length!=0"
-          :styleObject = "styleObject"
-          :parent="parent"
-          :indent = "Number(1)"
-          :data="row.children"
-          :prefix-cls="prefixCls"
-          :typeName = "typeName"
-          :columns = "columns"
-          :showEditInput="showEditInput"
-          :isCheckbox="isCheckbox">
-        </Tree-table>
+          <Tree-table
+            v-if="objData[row._index]._isExpanded && row.children && row.children.length!=0"
+            :styleObject = "styleObject"
+            :parent="parent"
+            :indent = "Number(1)"
+            :data="row.children"
+            :prefix-cls="prefixCls"
+            :typeName = "typeName"
+            :columns = "columns"
+            :columnsWidth="columnsWidth"
+            :showEditInput="showEditInput"
+            :option="selectOption[index]"
+            :treeOption="treeOption[index]"
+            :isCheckbox="isCheckbox">
+          </Tree-table>
         </collapse-transition>
       </template>
     </tbody>
@@ -139,7 +145,7 @@
     import Icon from '../Icon/Icon.vue'
     import CollapseTransition from '../Notice/collapse-transition';
     export default {
-      name: 'TableBody',
+      name: 'GirdBody',
       mixins: [ Mixin ],
       components: { Cell, Expand, TableTr,GroupTr, TreeTable,Icon,CollapseTransition},
       props: {
@@ -151,6 +157,10 @@
         objData: Object,
         columnsWidth: Object,
         rowSelect: Boolean,
+        fixed: {
+          type: [Boolean, String],
+          default: false
+        },
         showEditInput:Boolean,
         isCheckbox:Boolean,
         checkStrictly:Boolean,
@@ -162,6 +172,7 @@
           treeData:[],
           parent:this.$parent,
           flatState:[],
+          selectOption: this.option
         }
       },
       computed: {
@@ -235,9 +246,11 @@
                   node.children.forEach(child => flattenChildren(child, node));
               }
           }
-          this.treeData.forEach(rootNode => {
-            flattenChildren(rootNode);
-          });
+          if (this.treeData && this.treeData.length > 0) {
+            this.treeData.forEach(rootNode => {
+              flattenChildren(rootNode);
+            });
+          }
           return flatTree;
         },
         updateCheckUp(_index){
@@ -312,6 +325,12 @@
             this.treeData = this.data;
             this.flatState = this.compileFlatState();
           }
+        },
+        option:{
+          handler (val) {
+            this.selectOption = val
+          },
+          deep: true
         }
       }
     };

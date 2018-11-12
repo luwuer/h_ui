@@ -17,7 +17,7 @@
 
         &:hover {
             .#{$checkbox-inner-prefix-cls} {
-                border-color: #bcbcbc;
+                border-color: $primary-color;
             }
         }
 
@@ -28,7 +28,7 @@
             position: relative;
             top: 0;
             left: 0;
-            border: 1px solid $border-color-base;
+            border: 1px solid #D7DDE4;
             border-radius: 2px;
             background-color: #fff;
             // transition: border-color $transition-time $ease-in-out, background-color $transition-time $ease-in-out;
@@ -166,7 +166,7 @@
 
         .#{$checkbox-inner-prefix-cls} {
             border-color: $border-color-base;
-            background-color: #f3f3f3;
+            background-color: $border-color-split;
             &:after {
                 animation-name: none;
                 border-color: #f3f3f3;
@@ -226,7 +226,7 @@
         cursor: pointer;
         font-size: $font-size-small;
         display: inline;
-        margin-right: 8px;
+        margin-left: 3px;
         &-disabled{
             cursor: $cursor-disabled;
         }
@@ -234,12 +234,11 @@
 
     .#{$checkbox-prefix-cls}-wrapper + span,
     .#{$checkbox-prefix-cls} + span {
-        //margin-left: 4px;
+        margin-left: 4px;
         margin-right: 4px;
     }
 
     .#{$checkbox-prefix-cls}-group {
-        font-size: $font-size-base;
         &-item {
             display: inline-block;
         }

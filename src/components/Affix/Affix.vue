@@ -74,14 +74,10 @@
             }
         },
         mounted () {
-//            window.addEventListener('scroll', this.handleScroll, false);
-//            window.addEventListener('resize', this.handleScroll, false);
             on(window, 'scroll', this.handleScroll);
             on(window, 'resize', this.handleScroll);
         },
         beforeDestroy () {
-//            window.removeEventListener('scroll', this.handleScroll, false);
-//            window.removeEventListener('resize', this.handleScroll, false);
             off(window, 'scroll', this.handleScroll);
             off(window, 'resize', this.handleScroll);
         },

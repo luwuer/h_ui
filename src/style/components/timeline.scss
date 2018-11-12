@@ -1,5 +1,5 @@
 $timeline-prefix-cls: "#{$css-prefix}timeline";
-$timeline-color: $border-color-split;
+$timeline-color: #DCE1E7;
 
 .#{$timeline-prefix-cls} {
   list-style: none;
@@ -14,10 +14,10 @@ $timeline-color: $border-color-split;
 
     &-tail {
       height: 100%;
-      border-left: 1px solid $timeline-color;
+      border-left: 2px solid $timeline-color;
       position: absolute;
-      left: 6px;
-      top: 0;
+      left: 4px;
+      top: 2px;
     }
 
     &-pending &-tail {
@@ -25,11 +25,12 @@ $timeline-color: $border-color-split;
     }
 
     &-head {
-      width: 13px;
-      height: 13px;
+      width: 10px;
+      height: 10px;
       background-color: #fff;
       border-radius: 50%;
-      border: 1px solid transparent;
+      top:2px;
+      border: 2px solid transparent;
       position: absolute;
 
       &-blue {
@@ -80,7 +81,7 @@ $timeline-color: $border-color-split;
   // :last-of-type 选择器匹配属于其父元素的特定类型的最后一个子元素的每个元素。
   &.#{$timeline-prefix-cls}-pending &-item:nth-last-of-type(2) {
     .#{$timeline-prefix-cls}-item-tail {
-      border-left: 1px dotted $timeline-color;
+      border-left: 2px dotted $timeline-color;
     }
     .#{$timeline-prefix-cls}-item-content {
       min-height: 48px;

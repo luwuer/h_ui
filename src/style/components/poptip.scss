@@ -30,8 +30,15 @@ $poptip-arrow-color: darken(#ddd,.1);
     }
 
     &-inner{
-      color: $title-color;
-      font-size: $font-size-base;
+      // color: $title-color;
+      // font-size: $font-size-base;
+      font-family: MicrosoftYaHei-Bold;
+      font-size: 14px;
+      color: #495060;
+      letter-spacing: 0;
+      text-align: left;
+      line-height: 24px;
+      font-weight: 700;
     }
   }
 
@@ -41,7 +48,12 @@ $poptip-arrow-color: darken(#ddd,.1);
     &-content{
       overflow: auto;
       &-inner{
-          color: $text-color;
+          // color: $text-color;
+          font-family: MicrosoftYaHei;
+          font-size: 12px;
+          color: #7E828A;
+          text-align: left;
+          line-height: 20px;
       }
     }
   }
@@ -122,6 +134,9 @@ $poptip-arrow-color: darken(#ddd,.1);
     }
     &-message{
       padding-left: 20px;
+      font-size: 12px;
+      color: #495060;
+
     }
   }
   &-confirm &-footer{

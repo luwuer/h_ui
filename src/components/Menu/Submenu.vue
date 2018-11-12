@@ -4,7 +4,7 @@
       <slot name="title"></slot>
       <Icon :name="subIcon" :class="[prefixCls + '-submenu-title-icon']"></Icon>
     </div>
-    <collapse-transition v-if="mode === 'vertical'">
+    <collapse-transition v-if="mode === 'vertical' &&shrinked">
       <ul :class="[prefixCls]" v-show="opened"><slot></slot></ul>
     </collapse-transition>
     <transition name="slide-up" v-else>
@@ -38,6 +38,10 @@ export default {
     disabled: {
       type: Boolean,
       default: false
+    },
+    showSlide:{
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -46,7 +50,8 @@ export default {
       active: false,
       opened: false,
       dropWidth: parseFloat(getStyle(this.$el, 'width')),
-      parent: findComponentsUpward(this, 'Menu')
+      parent: findComponentsUpward(this, 'Menu'),
+      shrinked:true,
     };
   },
   computed: {
@@ -81,6 +86,9 @@ export default {
     mode () {
       return this.parent.mode;
     },
+    vertiSide () {
+      return this.parent.vertiSide;
+    },
     accordion () {
       return this.parent.accordion;
     },
@@ -97,7 +105,7 @@ export default {
       if (this.disabled) return;
       // if (this.mode === 'vertical') return;
       // collapse为true时，可以鼠标经过
-      if (this.mode === 'vertical' && !this.collapse) return;
+      if (this.mode === 'vertical' && !this.collapse&&!this.showSlide) return;
       
       clearTimeout(this.timeout);
       this.parent.updateOpenKeys(this.name);
@@ -109,7 +117,7 @@ export default {
       if (this.disabled) return;
       // if (this.mode === 'vertical') return;
       // collapse为true时，可以鼠标经过
-      if (this.mode === 'vertical' && !this.collapse) return;
+      if (this.mode === 'vertical' && !this.collapse&&!this.showSlide) return;
       this.parent.updateOpenKeys(this.name);
       clearTimeout(this.timeout);
       this.timeout = setTimeout(() => {
@@ -157,6 +165,13 @@ export default {
     this.$on('on-update-active-name', (status) => {
       this.active = status;
     });
+    this.$on('on-collapse-close',()=>{
+      this.shrinked = false;
+      this.opened=false;
+      this.$nextTick(()=>{
+        this.shrinked = true;
+      })
+    })
   }
 };
 </script>

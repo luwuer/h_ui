@@ -1,8 +1,12 @@
 <template>
   <div>
     <h-row>
-      <h-col span='6'><h2>基本用法</h2><h-tree :data="data1"></h-tree></h-col>
-      <h-col span='6'><h2>显示勾选框</h2><h-tree :data="data2" show-checkbox @on-check-change="checkChnage"></h-tree></h-col>
+      <h-col span='6'><h2>基本用法</h2><h-tree :data="test" ref="test"></h-tree></h-col>
+      <h-button @on-click="ok">赋值</h-button>
+      <h-button @on-click="cancle">取消</h-button>
+      <h-button @on-click="select">选择</h-button>
+      <h-button @on-click="select(false)">取消选中</h-button>
+      <h-col span='6'><h2>显示勾选框</h2><h-tree :data="data2" checkStrictly isBoxRight selectToCheck multiple show-checkbox @on-check-change="checkChnage" @on-toggle-expand="checkChnage"></h-tree></h-col>
       <h-col span='6'><h2>异步加载</h2><h-tree :data="data3" :load-data="loadData" show-checkbox></h-tree> </h-col>
       <h-col span='6'><h2>默认展开、选中、勾选和禁用</h2><h-tree :data="data4" show-checkbox multiple></h-tree> </h-col>
     </h-row>
@@ -38,6 +42,7 @@
   </div>
 </template>
 <script>
+import {deepCopy} from '../../src/util/tools.js'
   export default {
     data () {
       return {
@@ -154,30 +159,38 @@
         data1: [
           {
             title: 'parent 1',
+            id: '1',
             expand: true,
+            hasPage: 'true',
             children: [
               {
                 title: 'parent 1-1',
+                id: '2',
                 expand: true,
                 disabled:true,
                 children: [
                     {
-                        title: 'leaf 1-1-1'
+                        title: 'leaf 1-1-1',
+                        id: '3',
                     },
                     {
-                        title: 'leaf 1-1-2'
+                        title: 'leaf 1-1-2',
+                        id: '4',
                     }
                 ]
               },
               {
                 title: 'parent 1-2',
+                id: '5',
                 expand: true,
                 children: [
                     {
-                        title: 'leaf 1-2-1'
+                        title: 'leaf 1-2-1',
+                        id: '5',
                     },
                     {
-                        title: 'leaf 1-2-1'
+                        title: 'leaf 1-2-1',
+                        id: '6',
                     }
                 ]
               }
@@ -187,15 +200,17 @@
         data2: [
           {
             title: 'parent 1',
-            expand: true,
+            expand: 'true',
             children: [
               {
                 title: 'parent 1-1',
-                expand: true,
-                checked: true,
+                expand: 'true',
+                checked: 'true',
                 children: [
                   {
-                    title: 'leaf 1-1-1'
+                    title: 'leaf 1-1-1',
+                    checked: 'false',
+                    disabled: 'false'
                   },
                   {
                     title: 'leaf 1-1-2'
@@ -204,7 +219,7 @@
               },
               {
                 title: 'parent 1-2',
-                expand: true,
+                expand: 'false',
                 children: [
                   {
                     title: 'leaf 1-2-1'
@@ -219,19 +234,28 @@
         ],
         data3: [
           {
-            title: 'parent',
+            title: 'parent-autoload',
             loading: false,
+            autoLoad: 'true',
+            expand: true,
+            children: []
+          },
+          {
+            title: 'parent112-autoload',
+            expand: false,            
+            loading: false,
+            autoLoad: true,
             children: []
           }
         ],
         data11: [
           {
             title: 'parent 1',
-            expand: true,
+            expand: 'true',
             children: [
               {
                 title: 'parent 1-1',
-                expand: true,
+                expand: 'false',
                 children: [
                     {
                         title: 'leaf 1-1-1'
@@ -325,19 +349,20 @@
           {
             title: 'parent 1',
             expand: true,
-            selected: true,
+            selected: 'true',
             children: [
               {
                 title: 'parent 1-1',
                 expand: true,
+                selected: 'true',
                 children: [
                   {
                     title: 'leaf 1-1-1',
-                    disabled: true
+                    disabled: 'false'
                   },
                   {
                     title: 'leaf 1-1-2',
-                    disableCheckbox:true
+                    disableCheckbox:'false'
                   }
                 ]
               },
@@ -436,7 +461,8 @@
         buttonProps: {
           type: 'ghost',
           size: 'small',
-        }
+        },
+        test:[],
       }
     },
     methods: {
@@ -447,7 +473,7 @@
               title: 'children',
               loading: false,
               children: []
-            },
+      },
             {
               title: 'children',
               loading: false,
@@ -537,6 +563,15 @@
       },
       checkChnage(data){
         console.log(data);
+      },
+      ok(){
+        this.test = this.data1;
+      },
+      select(status = true){
+        this.$refs.test.nodeSelect('id','3',status);
+      },
+      cancle(){
+        this.test = [];
       }
     },
     mounted () {

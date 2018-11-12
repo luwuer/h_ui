@@ -3,17 +3,22 @@
     <transition :name="transitionNames[1]">
       <div :class="maskClasses" v-show="visible" @click="mask" :style="stylecls"></div>
     </transition>
-    <div :class="wrapClasses" @click="handleWrapClick" :style="stylecls">
+    <div :class="wrapClasses" @click="handleWrapClick" :style="stylecls" ref="wrap">
       <transition :name="transitionNames[0]" @after-leave="animationFinish">
         <!-- <div :class="classes"> -->
-          <div :class="[prefixCls + '-content']" v-show="visible" :style="mainStyles">
+          <div :class="[prefixCls + '-content']" v-show="visible" :style="mainStyles" ref="content">
+            <a :class="[prefixCls + '-maximize']" v-if="maximize" @click="switchSize">
+              <slot name="maximize">
+                <Icon :name="maxName"></Icon>
+              </slot>
+            </a>
             <a :class="[prefixCls + '-close']" v-if="closable" @click="close">
               <slot name="close">
                 <Icon name="close"></Icon>
               </slot>
             </a>
             <div :class="[prefixCls + '-header']" v-if="showHead" v-drag="[this.canDrag,this.isBeyond]"><slot name="header"><div :class="[prefixCls + '-header-inner']">{{ title }}</div></slot></div>
-            <div :class="[prefixCls + '-body']"><slot></slot></div>
+            <div :class="[prefixCls + '-body']"  :style="contentStyle"><slot></slot></div>
             <div :class="[prefixCls + '-footer']" v-if="!footerHide">
               <slot name="footer">
                 <h-button type="text" size="large" @click="cancel">{{ localeCancelText }}</h-button>
@@ -30,7 +35,6 @@
 import Icon from '../Icon/Icon.vue';
 import hButton from '../Button/Button.vue';
 import TransferDom from '../../directives/transfer-dom';
-// import { getScrollBarSize } from '../../util/tools';
 import ScrollbarMixins from './mixins-scrollbar';
 import Locale from '../../mixins/locale';
 import Emitter from '../../mixins/emitter';
@@ -117,6 +121,15 @@ export default {
     isBeyond:{
       type:Boolean,
       default:false,
+    },
+    isOriginal:{
+      type:Boolean,
+      default:false,
+    },
+    height: [String,Number],
+    maximize:{
+      type:Boolean,
+      default:false,
     }
   },
   data () {
@@ -127,6 +140,9 @@ export default {
       buttonLoading: false,
       visible: this.value,
       screenWidth:null,
+      curWidth:this.width,
+      curHeight:0,
+      isMax:false,
     };
   },
   computed: {
@@ -148,11 +164,12 @@ export default {
     mainStyles () {
       this.screenWidth = document.documentElement.clientWidth;
       let style = {};
-      const width = parseInt(this.width);
+      const width = parseInt(this.curWidth);
       const styleWidth = {
-        width: width <= 100 ? `${width}%` : `${width}px`
+        width: width <= 100 ? `${width}%` : `${width}px`,
+        height:this.curHeight?this.curHeight+'px':'auto'
       };
-      style.top=this.top+'px';
+      style.top=this.curHeight?'0':this.top+'px';
       style.left = (this.screenWidth-width)/2+'px';
       const customStyle = this.styles ? this.styles : {};
       Object.assign(style, styleWidth, customStyle);
@@ -176,13 +193,44 @@ export default {
       let style={};
       style.zIndex = this.zIndex;
       return style;
+    },
+    contentStyle () {
+      let style = {}
+      if (this.height) {
+        style.height = this.height + 'px'
+        style.overflowY = "auto"
+      }
+      return style
+    },
+    maxName () {
+      return this.isMax?'max':'min'
     }
   },
   methods: {
     close () {
-      this.visible = false;
       this.$emit('input', false);
       this.$emit('on-close');
+      this.visible = false;
+    },
+    switchSize(){
+      if(!this.isMax){
+        this.curWidth = this.screenWidth;
+        this.curHeight = document.documentElement.clientHeight;
+      }else{
+        this.curWidth = this.width;
+        this.curHeight = 0;
+      }
+      this.isMax = !this.isMax;
+    },
+    backOrigin(){      
+      const obj = this.$refs.content;
+      const width = parseInt(this.curWidth);
+      const styleWidth = {
+        width: width <= 100 ? `${width}%` : `${width}px`
+      };
+      if(Number(this.top)<=0) this.$refs.wrap.style.display="flex";
+      obj.style.top=this.top+'px';
+      obj.style.left = (this.screenWidth-width)/2+'px';
     },
     mask () {
       if (this.maskClosable) {
@@ -190,7 +238,7 @@ export default {
       }
     },
     handleWrapClick (event) {
-      // use indexOf,do not use === ,because ivu-modal-wrap can have other custom className
+      // use indexOf,do not use === ,because h-modal-wrap can have other custom className
       const className = event.target.getAttribute('class');
       if (className && className.indexOf(`${prefixCls}-wrap`) > -1) this.mask();
     },
@@ -240,12 +288,14 @@ export default {
     on(window, 'resize', this.ScreenRes);
   },
   beforeDestroy () {
-    document.removeEventListener('keydown', this.EscClose);
+    off(document,'keydown',this.EscClose);
+    off(window, 'resize', this.ScreenRes);
     this.removeScrollEffect();
   },
   watch: {
     value (val) {
       this.visible = val;
+      if(val&&this.isOriginal) this.backOrigin();
     },
     visible (val) {
       if (val === false) {
@@ -279,7 +329,10 @@ export default {
       if (this.$slots.header === undefined) {
           this.showHead = !!val;
       }
-    }
+    },
+    width(val){
+      this.curWidth = val;
+    },
   }
 };
 </script>

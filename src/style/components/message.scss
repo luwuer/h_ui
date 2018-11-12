@@ -17,7 +17,7 @@ $icon-prefix-cls: "#{$css-prefix}icon";
         &-close {
             position: absolute;
             right: 6px;
-            top: 9px;
+            top: 13px;
             color: #999;
             outline: none;
 
@@ -33,11 +33,14 @@ $icon-prefix-cls: "#{$css-prefix}icon";
         padding: 8px 16px;
         //border: 1px solid $border-color-split;
         border-radius: $border-radius-small;
-        box-shadow: $shadow-base;
+        box-shadow: 0 4px 12px 0 rgba(0,0,0,0.15);
         background: #fff;
         display: block;
         &-text{
             display: inline-block;
+            span{
+                color: #495060;
+            }
         }
     }
     &-notice-closable{
@@ -64,8 +67,8 @@ $icon-prefix-cls: "#{$css-prefix}icon";
     }
 
     .#{$icon-prefix-cls} {
-        margin-right: 8px;
-        font-size: 14px;
+        margin-right: 4px;
+        font-size: 18px;
         top: 1px;
         position: relative;
     }

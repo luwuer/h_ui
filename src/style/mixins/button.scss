@@ -264,6 +264,23 @@
     }
 }
 
+// Danger
+@mixin btn-danger() {
+    @include button-variant($btn-danger-color, $btn-danger-bg, $btn-danger-border);
+    border-style: solid;
+    border-radius:4px;
+
+    &:hover
+    //&:focus
+    {
+        @include button-color(darken($btn-danger-color, 10%), $btn-danger-bg, darken($btn-danger-color, 10%));
+    }
+    &:active,
+    &.active {
+        @include button-color(darken($btn-danger-color, 5%), $btn-danger-bg, darken($btn-danger-color, 5%));
+    }
+}
+
 // Color
 @mixin btn-color($color) {
     @include button-variant($btn-primary-color, $color, $color);
@@ -291,12 +308,12 @@
         @include square($btn-circle-size);
         @include button-size(0, $font-size-base + 2, 50%);
 
-        &.#{btnClassName}-large{
+        &.#{$btnClassName}-large{
             @include square($btn-circle-size-large);
             @include button-size(0, $btn-font-size-large + 2, 50%);
         }
 
-        &.#{btnClassName}-small{
+        &.#{$btnClassName}-small{
             @include square($btn-circle-size-small);
             @include button-size(0, $font-size-base, 50%);
         }

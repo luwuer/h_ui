@@ -67,6 +67,9 @@ export default {
         },
         innerClasses () {
             return `${prefixCls}-inner`;
+        },
+        innerClassesMinus () {
+            return `${prefixCls}-inner-innerminus`;
         }
     },
     methods: {

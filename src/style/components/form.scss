@@ -8,14 +8,23 @@ $form-item-prefix-cls: "#{$form-prefix-cls}-item";
         float: left;
         font-size: $font-size-small;
         color: $text-color;
-        line-height: 1;
+        // line-height: 1;
+
         // padding: 10px 12px 10px 0;
-        padding: 10px 10px 10px 0;
+        line-height: $form-component-height;
+        padding: 0 12px 0 0;
         box-sizing: border-box;
         // 多余即省略
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
+    }
+    .#{$form-item-prefix-cls}-labelWrap .#{$form-item-prefix-cls}-label {
+        padding: 0 12px 0 0;
+        height: $form-component-height;
+        line-height: $form-component-height / 2;
+        white-space: pre-wrap;
+        word-break: break-all;
     }
     &-label-left .#{$form-item-prefix-cls}-label {
         text-align: left;
@@ -46,7 +55,7 @@ $form-item-prefix-cls: "#{$form-prefix-cls}-item";
             }
             &-content {
                 // height: 32px; 
-                line-height: 31px;
+                line-height: $form-component-height;
 
             }
         }
@@ -73,7 +82,7 @@ $form-item-prefix-cls: "#{$form-prefix-cls}-item";
     @include clearfix();
     &-content {
         position: relative;
-        line-height: 31px;
+        line-height: $form-component-height;
         font-size: $font-size-small;
     }
     & & {
@@ -108,8 +117,8 @@ $form-item-prefix-cls: "#{$form-prefix-cls}-item";
             position: absolute;
             left: -9px;
             vertical-align: middle;
-            line-height: 31px;
-            height: 31px;
+            line-height: $form-component-height;
+            height: $form-component-height;
             color: $error-color;
             font-family: SimSun;
             font-size: $font-size-small;

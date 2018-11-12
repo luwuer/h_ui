@@ -77,7 +77,8 @@
                 return {
                   ...cell,
                   type: time === today ? 'today' : cell.type,
-                  selected: dateIsInCurrentMonth && selectedDays.includes(time),
+                  // selected: dateIsInCurrentMonth && selectedDays.includes(time),
+                  selected: dateIsInCurrentMonth && (selectedDays.indexOf(time)>-1?true:false),
                   disabled: (cell.date && disabledTestFn) && disabledTestFn(new Date(time)),
                   range: dateIsInCurrentMonth && isRange && isInRange(time, rangeStart, rangeEnd),
                   start: dateIsInCurrentMonth && isRange && time === minDay,

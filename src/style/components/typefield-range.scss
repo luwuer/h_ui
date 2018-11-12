@@ -1,0 +1,62 @@
+$typefieldRange-prefix-cls: "#{$css-prefix}typefield-range" ;
+.#{$typefieldRange-prefix-cls}{
+  position: relative;
+  border:1px solid #d7dde4;
+  border-radius:4px;
+  height: $form-component-height;
+
+  &-inner{
+    width: calc(50% - 10px);
+    float: left;
+    .#{$typefield-prefix-cls} input{
+      height: $form-component-height - 1px;
+      line-height: $form-component-height - 1px;
+      border: none;
+      background: inherit;
+    }
+    .h-typefield{
+      height: $form-component-height - 1px;
+    }
+  }
+  &-inner.split{
+    width: 20px;
+    height: $form-component-height - 2px;
+    line-height: $form-component-height - 2px;
+    text-align: center;
+  }
+  &-disabled{
+    input[disabled], {
+      @include disabled();
+    }
+  }
+  &-readonly{
+    input[readonly] {
+      // background: $input-readonly-bg;
+      @include readonly();
+    }
+  }
+  &-content {
+    position: relative;
+    // line-height: 31px;
+    // margin-top:34px;
+    font-size: $font-size-small;
+    .verify-tip.verify-bottom{
+      margin-top: $form-component-height;
+    }
+  }
+  &-error{
+    border-color: $error-color;
+  }
+}
+
+.#{$form-item-prefix-cls}-error{
+  .#{$typefieldRange-prefix-cls}{
+    border:1px solid $error-color;
+  }
+}
+
+.#{$editgird-prefix-cls}-cell-error{
+    .#{$typefieldRange-prefix-cls}{
+      border:1px solid $error-color;
+    }
+}

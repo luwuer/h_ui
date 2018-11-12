@@ -1,9 +1,27 @@
 <template>
 	<div>
 	  <h2>单独使用</h2>
+    {{btncheck}}
+    <h-checkbox-group v-model="btncheck">
+      <h-checkbtn value="twitter" label="Twitter" disabled>
+        <!-- <span>Twitter</span> -->
+      </h-checkbtn>
+      <h-checkbtn value="facebook" label="facebook" @on-click="click">
+        <span>Facebook</span>
+      </h-checkbtn>
+      <h-checkbtn value="github" label="github" icon="close">
+        <span>Github</span>
+      </h-checkbtn>
+      <h-checkbtn value="snapchat" label="snapchat">
+        <span>Snapchat</span>
+      </h-checkbtn>
+    </h-checkbox-group>
+  <h-msg-box v-model="changeform" width="900">
     <h-checkbox v-model="single1" size="large" true-value="1" false-value="0">checkbox</h-checkbox><br>{{single1}}
     <h-checkbox v-model="single">checkbox</h-checkbox><br>{{single}}
 		<h-checkbox v-model="single" size="small">checkbox</h-checkbox><br>{{single}}
+  </h-msg-box>
+  <Button @on-click="changeform1">显示隐藏</Button>
 		<h2>组合使用</h2>
 		<h-checkbox-group v-model="social">
       <h-checkbox label="twitter">
@@ -30,6 +48,7 @@
       <h-checkbox label="西瓜"></h-checkbox>
     </h-checkbox-group>
     {{fruit}}
+    <h-button @on-click="changeFruit"></h-button>
     <h2>不可用</h2>
     <h-checkbox v-model="disabledSingle" disabled>checkbox</h-checkbox>
     {{disabledSingle}}
@@ -70,7 +89,7 @@
     </h-checkbox-group>
     <br><br><br><br><br><br><br><br><br>
 	</div>
-</template>s
+</template>
 <script>
 	export default{
 		name:'Checkboxw',
@@ -86,10 +105,18 @@
         disabled: false,
         indeterminate: true,
         checkAll: false,
-        checkAllGroup: ['香蕉', '西瓜']
+        checkAllGroup: ['香蕉', '西瓜'],
+        changeform:false,
+        btncheck:[],
 			}
 		},
 		methods:{
+      changeform1(){
+        this.changeform = !this.changeform;
+      },
+      changeFruit(){
+        this.fruit=['苹果','香蕉'];
+      },
 			handleCheckAll () {
         if (this.indeterminate) {
           this.checkAll = false;
@@ -115,7 +142,14 @@
           this.indeterminate = false;
           this.checkAll = false;
         }
+      },
+      click(e,val){
+        console.log(e);
+        console.log(val);
       }
-		}
+    },
+    mounted(){
+      this.btncheck = ['facebook', 'github']
+    }
 	}
 </script>

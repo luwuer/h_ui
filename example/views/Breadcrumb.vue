@@ -9,13 +9,13 @@
     <h1>基础用法</h1>
     <h-breadcrumb>
       <h-breadcrumb-item href="/">
-        <h-icon name="activity"></h-icon> Home
+        <h-icon name="homepage"></h-icon> Home
       </h-breadcrumb-item>
       <h-breadcrumb-item href="/menu">
-        <h-icon name="activity"></h-icon> Components
+        <h-icon name="android-folder-open"></h-icon> Components
       </h-breadcrumb-item>
       <h-breadcrumb-item>
-        <h-icon name="add"></h-icon> Breadcrumb
+        <h-icon name="document"></h-icon> Breadcrumb
       </h-breadcrumb-item>
     </h-breadcrumb>
     <h-breadcrumb separator=">">

@@ -15,7 +15,7 @@
           v-show="filterable && query === ''"
           @click="handleFocus">{{ displayRender }}</div>
         <Icon name="close" :class="[prefixCls + '-arrow']" v-show="showCloseIcon" @click.native.stop="clearSelect"></Icon>
-        <Icon name="arrowdownb" :class="[prefixCls + '-arrow']"></Icon>
+        <Icon name="unfold" :class="[prefixCls + '-arrow']"></Icon>
       </slot>
     </div>
     <transition name="slide-up">
@@ -25,8 +25,9 @@
         ref="drop"
         :data-transfer="transfer"
         v-transfer-dom
+        :placement="fPlacement"
         :style="tipStyle">
-        <div>
+        <div :class="dorpClass">
           <Caspanel
             v-show="!filterable || (filterable && query === '')"
             ref="caspanel"
@@ -42,6 +43,7 @@
                   [selectPrefixCls + '-item-disabled']: item.disabled
                 }]"
                 v-for="(item, index) in querySelections"
+                :key="index"
                 @click="handleSelectItem(index)" v-html="item.display"></li>
             </ul>
           </div>
@@ -133,7 +135,17 @@
       transfer: {
         type: Boolean,
         default: false
-      }
+      },
+      setProviceCity:{
+        type:Boolean,
+        default:false,
+      },
+      placement: {
+        validator (value) {
+            return oneOf(value, ['top', 'top-start', 'top-end', 'bottom', 'bottom-start', 'bottom-end', 'left', 'left-start', 'left-end', 'right', 'right-start', 'right-end']);
+        },
+        default: 'bottom'
+      },
     },
     data () {
       return {
@@ -146,7 +158,8 @@
         currentValue: this.value,
         query: '',
         validDataStr: '',
-        isLoadedChildren: false    // #950
+        isLoadedChildren: false,    // #950
+        fPlacement:this.placement,
       };
     },
     computed: {
@@ -229,6 +242,14 @@
             return item;
         });
         return selections;
+      },
+      dorpClass(){
+        return[
+          // `${prefixCls}-dropdown`,
+          {
+            [`provice-city`]:this.setProviceCity
+          }
+        ]
       }
     },
     methods: {
@@ -325,7 +346,7 @@
       blur(){
         this.visible=false;
         this.$refs.input.blur();
-      }
+      },
     },
     created () {
       this.validDataStr = JSON.stringify(this.getValidData(this.data));
@@ -403,6 +424,9 @@
             this.isLoadedChildren = false;
           }
         }
+      },
+      placement(val){
+        this.fPlacement = val;
       }
     }
   };

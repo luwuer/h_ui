@@ -1,13 +1,13 @@
 <template>
 	<div>
 		<h2>单独使用</h2>
-        <h-radio v-model="single1" size="large" true-value="1" false-value="0">Radio</h-radio>s
-        <h-radio v-model="single">Radio</h-radio>
-		<h-radio v-model="single" size="small">Radio</h-radio>
+        <h-radio @on-click="click" v-model="single1" size="large" true-value="1" false-value="0">Radio</h-radio>s
+        <h-radio @on-click="click" v-model="single">Radio</h-radio>
+		<h-radio @on-click="click" v-model="single" size="small">Radio</h-radio>
         {{single1}}
 		{{single}}
 		<h2>组合使用</h2>
-		<h-radio-group v-model="phone">
+		<h-radio-group v-model="phone" @on-click="click">
       <h-radio label="apple" size="large">
         <h-Icon name="clock"></h-Icon>
         <span>Apple</span>
@@ -122,6 +122,9 @@
         methods:{
             changeStatus(){
                 this.status = !this.status
+            },
+            click(){
+                console.log('我被点击了')
             }
         }
 	}

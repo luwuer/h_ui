@@ -66,6 +66,13 @@ export default {
             notFoundText: 'Sin resultados',
             notFoundText: 'Sin resultados'
         },
+        transferTable: {
+            lTitles: 'Origen',
+            rTitles: 'Destino',
+            filterPlaceholder: 'Buscar aquí',
+            notFoundText: 'Sin resultados',
+            notFoundData: 'Sin resultados'
+        },
         modal: {
             okText: 'Aceptar',
             cancelText: 'Cancelar'

@@ -10,10 +10,10 @@ let noticeInstance;
 let name = 1;
 
 const iconTypes = {
-    'info': 'prompt',
-    'success': 'success',
-    'warning': 'warning',
-    'error': 'delete'
+    'info': 'prompt_fill',
+    'success': 'success_fill',
+    'warning': 'warning_fill',
+    'error': 'delete_fill'
 };
 
 function getNoticeInstance () {
@@ -55,10 +55,12 @@ function notice (type, options) {
         const iconType = iconTypes[type];
         content = `
             <div class="${prefixCls}-custom-content ${prefixCls}-with-icon ${prefixCls}-with-${type}${with_desc}">
-                <span class="${prefixCls}-icon ${prefixCls}-icon-${type}">
-                    <i class="iconfont icon-${iconType} ${iconPrefixCls}"></i>
-                </span>
-                <div class="${prefixCls}-title">${title}</div>
+                <div class="${prefixCls}-title-wrap">
+                    <span class="${prefixCls}-icon ${prefixCls}-icon-${type}">
+                        <i class="iconfont icon-${iconType} ${iconPrefixCls}"></i>
+                    </span>
+                    <div class="${prefixCls}-title">${title}</div>
+                </div>
                 <div class="${prefixCls}-desc">${desc}</div>
             </div>
         `;

@@ -1,50 +1,42 @@
 <template>
-<div>
-    <h-button type="primary" @click="modal1 = true">显示对话框</h-button>
-    <h-msgBox
-        v-model="modal1"
-        title="普通的Modal对话框标题"
-        @on-ok="ok"
-        @on-cancel="cancel">
-  <h-select-table>
-     <h-table-option border :columns="columns1" :data="data1" ></h-table-option>
-  </h-select-table>
-    </h-msgBox>
-</div>
+  <div>
+<!-- <h-row> -->
+  <!-- <h-col span="4"> -->
+    <h-simple-select v-model="value" filterable style="width:200px"  showBottom @on-change="testtest" label-in-value checkToHead multiple>
+        <h-select-block :data="bigData"></h-select-block>
+    </h-simple-select>
+    <span>{{value}}</span>
+    <!-- </h-col> -->
+    <!-- </h-row> -->
+  </div>
 </template>
 <script>
+let bigData = [];
+for(let i=0;i<2000;i++){
+  let obj={};
+  obj.value="value"+i;
+  obj.label="浙江省杭州市萧山区城厢街道"+i;
+  bigData.push(obj);
+}
     export default {
         data () {
-            return {
-                modal1: false,
-             columns1: [
-              {
-                title: '姓名',
-                key: 'name',
-                ellipsis: true
-              },
-              {
-                title: '年龄',
-                key: 'age'
-              },
-              {
-                title: '地址',
-                key: 'address'
-              }
-            ], 
-                data1: []
-            }
+        return{
+            bigData:bigData,
+            value:['value0'],
+            value1:['value0'],
+            value2:'',
+        }
         },
-        methods: {
-            ok () {
-                this.$hMessage.info('点击了确定');
-            },
-            cancel () {
-                this.$hMessage.info('点击了取消');
-            }
+        methods:{
+        testtest(data){
+        console.log(data);
+        }
         }
     }
 </script>
+
+
+
 <!-- <template>
   <div>
     <h-form ref="formItem1" :model="formItem1" :label-width="80" errorFocus cols="2">

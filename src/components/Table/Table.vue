@@ -15,6 +15,9 @@
           :canDrag="canDrag &&!!border"
           :canMove="canMove"
           :headAlgin="headAlgin"
+          :lastColWidth="lastColWidth"
+          :minDragWidth="minDragWidth"
+          :multiLevel="cloneMultiLevel"
           ></table-head>
       </div>
       <div :class="[prefixCls + '-body']" :style="bodyStyle" ref="body" @scroll="handleBodyScroll"
@@ -37,10 +40,11 @@
           <span v-html="localeNoDataText" v-if="!data || data.length === 0"></span>
           <span v-html="localeNoFilteredDataText" v-else></span>
         </div>
-        <table cellspacing="0" cellpadding="0" border="0" :style="tableStyle">
+        <table cellspacing="0" cellpadding="0" border="0" :style="tipStyle">
           <tbody>
             <tr>
-              <td :style="{ 'height': bodyStyle.height}">
+               <!-- <td :style="{ 'height': bodyStyle.height}">  -->
+               <td :style="{ 'height': tipBodyHeight + 'px'}"> 
                <!--  <span v-html="localeNoDataText" v-if="!data || data.length === 0"></span>
                 <span v-html="localeNoFilteredDataText" v-else></span> -->
               </td>
@@ -58,9 +62,12 @@
             :obj-data="objData"
             :columns-width="columnsWidth"
             :data="rebuildData"
-            :canDrag="Boolean(false)"
+            :canDrag="canDrag &&!!border && canDragFixed"
             :canMove="Boolean(false)"
             :headAlgin="headAlgin"
+            :lastColWidth="lastColWidth"
+            :minDragWidth="minDragWidth"
+            @on-change-width="changeWidth"
             ></table-head>
         </div>
         <div :class="[prefixCls + '-fixed-body']" :style="fixedBodyStyle" ref="fixedBody">
@@ -106,6 +113,22 @@
             :showTitle="showTitle"></table-body>
         </div>
       </div>
+      <div :class="[prefixCls + '-summation']" :style="summationStyle" v-if="isSummation" ref="summation">
+        <!-- <div :class="[prefixCls + '-fixed-body']" :style="fixedBodyStyle" ref="fixedRightBody"> -->
+        <table-body
+          ref='sumBody'
+          :sum = 'isSummation'
+          :prefix-cls="prefixCls"
+          :styleObject="tableStyle"
+          :columns="cloneColumns"
+          :data="makeSumData()"
+          :obj-data="makeSumObjData()"
+          :columns-width="columnsWidth"
+          :bodyAlgin ="bodyAlgin"
+          :showTitle="showTitle"></table-body>
+        <!-- </div> -->
+      </div>
+      
       <div class="h-table__column-resize-proxy" ref="resizeProxy" v-show="resizeProxyVisible"> </div>
       <div class="h-table__column-move-proxy h-table-cell" ref="moveProxy" v-show="moveProxyVisible"> </div>
 
@@ -124,7 +147,7 @@
 import tableHead from './Table-head.vue';
 import tableBody from './Table-body.vue';
 import Spin from '../Spin/Spin.vue';
-import { oneOf, getStyle, deepCopy, getScrollBarSize,findInx,getBarBottom} from '../../util/tools';
+import { oneOf, getStyle, deepCopy, getScrollBarSize,findInx,getBarBottom,typeOf} from '../../util/tools';
 import { on, off } from '../../util/dom';
 import Csv from '../../util/csv';
 import ExportCsv from './export-csv';
@@ -201,6 +224,10 @@ export default {
       type:Boolean,
       default:true
     },
+    canDragFixed:{
+      type:Boolean,
+      default:false
+    },
     canMove:{
       type:Boolean,
       default:false
@@ -235,6 +262,35 @@ export default {
     showTitle:{
       type:Boolean,
       default:false,
+    },
+    lastColWidth:{
+      type:[Number,String],
+      default:80,
+    },
+    minDragWidth:{
+      type:[Number,String],
+      default:30,
+    },
+    patibleHeight:{//兼容高度
+      type:Boolean,
+      default:false,
+    },
+    multiLevel:{
+      type:Array,
+      default:null
+    },
+    summationData: {
+      type: Array,
+      default () {
+        return [];
+      }
+    },
+    maxHeight: {
+      type: [Number, String]
+    },
+    notSort: {
+      type:Boolean,
+      default:false,
     }
   },
   data () {
@@ -261,6 +317,12 @@ export default {
       showScroll:false,
       headerRealHeight:0,
       selectType:false,
+      buttomNum:null,
+      topNum: null,
+      keepAliveFlag: false, // 页面是否缓存
+      sumMarginLeft: 0,
+      shiftSelect:[],
+      ctrlSelect:[],
     };
   },
   computed: {
@@ -302,19 +364,15 @@ export default {
         }
       ];
     },
-    fixedHeaderClasses () {
-      return [
-        `${prefixCls}-fixed-header`,
-        {
-          [`${prefixCls}-fixed-header-with-empty`]: !this.rebuildData.length
-        }
-      ];
-    },
     styles () {
       let style = {};
       if (this.height) {
         const height = (this.isLeftFixed || this.isRightFixed) ? parseInt(this.height) + this.scrollBarWidth : parseInt(this.height);
-        style.height = `${height+2}px`;
+        // style.height = this.patibleHeight?`${this.height}px`:`${height+2}px`;
+        style.height = this.patibleHeigh ? this.height : this.height + 2
+        this.$nextTick(() => {
+          if (this.isSummation) style.height += this.$refs.summation.clientHeight
+        })
       }
       if (this.width) style.width = `${this.width}px`;
       return style;
@@ -326,7 +384,7 @@ export default {
         if (this.bodyHeight === 0) {
           width = this.tableWidth;
         } else {
-          if (this.bodyHeight > this.bodyRealHeight) {
+          if (this.bodyHeight > this.bodyRealHeight && this.data.length>0) {
             width = this.tableWidth;
           } else {
             width = this.tableWidth - this.scrollBarWidth;
@@ -335,6 +393,37 @@ export default {
         style.width = `${width}px`;
       }
       return style;
+    },
+    tipStyle () {
+      let style = {};
+      if (this.tableWidth !== 0) {
+        let width = this.tableWidth;
+        style.width = `${width}px`;
+      }
+      return style;
+    },
+    tipBodyHeight () {
+      let style = {};
+      let bodyStyleHeight = 0
+      //  获取原先bodyStyle中的height
+      if (this.bodyHeight !== 0) {
+        // add a height to resolve scroll bug when browser has a scrollBar in fixed type and height prop
+        const height = (this.isLeftFixed || this.isRightFixed) ? this.bodyHeight + this.scrollBarWidth : this.bodyHeight;
+        bodyStyleHeight = this.patibleHeight ? this.bodyHeight : height
+      }
+      // 判断是否有横向滚动条
+      if (this.tableWidth !== 0 && this.initWidth != 0) {
+        bodyStyleHeight = this.tableWidth > this.initWidth ? bodyStyleHeight - this.scrollBarWidth : bodyStyleHeight
+      }
+      return bodyStyleHeight
+    },
+    fixedHeaderClasses () {
+      return [
+        `${prefixCls}-fixed-header`,
+        {
+          [`${prefixCls}-fixed-header-with-empty`]: !this.rebuildData.length
+        }
+      ];
     },
     fixedTableStyle () {
       let style = {};
@@ -348,14 +437,20 @@ export default {
     fixedRightTableStyle () {
       let style = {};
       let width = 0;
+      let height = 0;
       this.rightFixedColumns.forEach((col) => {
         if (col.fixed && col.fixed === 'right') width += col._width;
       });
-      if (!!this.height && this.height < this.bodyRealHeight) {
+      if (this.bodyHeight !== 0) {
+        height = (this.isLeftFixed || this.isRightFixed) ? this.bodyHeight + this.scrollBarWidth : this.bodyHeight;
+        height = this.patibleHeight?this.bodyHeight:height;
+      }
+      if (height && height < this.bodyRealHeight) {
         style.marginRight = `${this.scrollBarWidth}px`;
         this.showScroll = true;
       }else{
-        width = width==0?0:width+this.scrollBarWidth;
+        // width = width==0?0:width+this.scrollBarWidth;
+        width = width==0?0:width;
       }
       style.width = `${width}px`;
 
@@ -373,21 +468,24 @@ export default {
     },
     bodyStyle () {
       let style = {};
-      if (this.bodyHeight !== 0) {
+      if (this.bodyHeight !== 0 || this.maxHeight) {
         // add a height to resolve scroll bug when browser has a scrollBar in fixed type and height prop
         const height = (this.isLeftFixed || this.isRightFixed) ? this.bodyHeight + this.scrollBarWidth : this.bodyHeight;
-        style.height = `${height}px`;
+        if (this.height) style.height = this.patibleHeight?`${this.bodyHeight}px`:`${height}px`;
+        if (this.maxHeight) style.maxHeight = this.patibleHeight?`${this.bodyHeight}px`:`${height}px`;
       }
       return style;
     },
     fixedBodyStyle () {
       let style = {};
-      if (this.bodyHeight !== 0) {
-        let height = this.bodyHeight;
+      if (this.bodyHeight !== 0 || this.maxHeight) {
+        let height =this.patibleHeight?this.bodyHeight-this.scrollBarWidth:this.bodyHeight;
         if (this.tableWidth < this.initWidth+1) {
-          height = this.bodyHeight + this.scrollBarWidth-1;
+          height = height + this.scrollBarWidth-1;
         }
-        style.height = this.scrollBarWidth > 0 ? `${height}px` : `${height}px`;
+        // height不存在时bodyheight为0
+        if (this.height) style.height = this.scrollBarWidth > 0 ? `${height}px` : `${height}px`;
+        if (this.maxHeight) style.maxHeight = this.scrollBarWidth > 0 ? `${height}px` : `${height}px` 
       }
       return style;
     },
@@ -395,22 +493,23 @@ export default {
       let style = {};
       // style.width = this.initWidth!=0?this.initWidth+'px': this.hasWidth ? this.hasWidth+'px' : '100%';
       style.width = this.initWidth!=0?this.initWidth+'px':'100%';
-      const height = (this.isLeftFixed || this.isRightFixed) ? this.bodyHeight + this.scrollBarWidth : this.bodyHeight;
-      style.height = this.height?Number(height-this.scrollBarWidth)+'px':null;
-      style.lineHeight = this.height?Number(height-this.scrollBarWidth)+'px':null;
+      let height = (this.isLeftFixed || this.isRightFixed) ? this.bodyHeight + this.scrollBarWidth : this.bodyHeight;
+      height = this.patibleHeight?height-2:height;
+      style.height = this.height || this.maxHeight ? Number(height-this.scrollBarWidth)+'px':null;
+      style.lineHeight = this.height  || this.maxHeight ? Number(height-this.scrollBarWidth)+'px':null;
       return style;
     },
     leftFixedColumns () {
-        let left = [];
-        let other = [];
-        this.cloneColumns.forEach((col) => {
-            if (col.fixed && col.fixed === 'left') {
-                left.push(col);
-            } else {
-                other.push(col);
-            }
-        });
-        return left.concat(other);
+      let left = [];
+      let other = [];
+      this.cloneColumns.forEach((col) => {
+          if (col.fixed && col.fixed === 'left') {
+              left.push(col);
+          } else {
+              other.push(col);
+          }
+      });
+      return left.concat(other);
     },
     rightFixedColumns () {
         let right = [];
@@ -429,6 +528,35 @@ export default {
     },
     isRightFixed () {
         return this.columns.some(col => col.fixed && col.fixed === 'right');
+    },
+    isSummation () {
+      return this.summationData.length > 0 && !this.isRightFixed && !this.isLeftFixed
+    },
+    summationStyle () {
+      return {
+        marginLeft: `${0 - this.sumMarginLeft}px`
+      }
+    },
+    cloneMultiLevel () {
+      if (!this.multiLevel || this.multiLevel.length==0) return null;
+      let data = [];
+          data[0]=[];
+      this.multiLevel.forEach((cols,i)=>{
+        if(typeOf(cols)!='array'){
+          if(!cols.hiddenCol&&cols.hiddenCol!='false'){
+            data[0].push(cols);
+          }
+        }else{
+          let data2=[]
+          cols.forEach((item,inx)=>{
+            if(!item.hiddenCol&&item.hiddenCol!='false'){
+              data2.push(item);
+            }
+          })
+          data.push(data2);
+        }
+      })
+      return data.length>0?data:null;
     }
   },
   methods: {
@@ -460,14 +588,15 @@ export default {
       }
       this.$emit('on-drag', width, key);
     },
-    handleMouseLeave() {
-      
+    handleMouseLeave() {      
     },
     handleResize () {
+      // keep-alive时，页面改变大小会不断触发resize【非本组件页面】
       this.$nextTick(() => {
-        const allWidth = !this.columns.some(cell => !cell.width&&cell.width!==0);    // each column set a width
+        if(this.columns.length==0) return;
+        const allWidth = !this.cloneColumns.some(cell => !cell.width&&cell.width!==0);    // each column set a width
         if (allWidth) {
-          this.tableWidth = this.columns.map(cell => cell.width).reduce((a, b) => a + b);
+          this.tableWidth = this.cloneColumns.map(cell => cell.width).reduce((a, b) => a + b);
         } else {
           this.tableWidth = parseInt(getStyle(this.$el, 'width')) - 1;
           if (!this.tableWidth&&this.hasWidth) {
@@ -481,7 +610,7 @@ export default {
           // if (allWidth) autoWidthIndex = this.cloneColumns.findIndex(cell => !cell.width);//todo 这行可能有问题
           if (allWidth) autoWidthIndex = findInx(this.cloneColumns,cell => !cell.width);
           this.cloneColumns.forEach((cell,i)=>{})
-          if (this.data.length) {
+          if (this.data.length && this.$refs.tbody) {
             const $td = this.$refs.tbody.$el.querySelectorAll('tbody tr')[0].querySelectorAll('td');
             for (let i = 0; i < $td.length; i++) {    // can not use forEach in Firefox
               const column = this.cloneColumns[i];
@@ -489,17 +618,15 @@ export default {
               if (i === autoWidthIndex) {
                   width = parseInt(getStyle($td[i], 'width')) - 1;
               }
-             // if (column.width) width = column.width||'';
-             // 自适应列在表格宽度较小时显示异常，为自适应列设置最小宽度100（拖拽后除外）
+            // if (column.width) width = column.width||'';
+            // 自适应列在表格宽度较小时显示异常，为自适应列设置最小宽度100（拖拽后除外）
               if (column.width) {
                   width = column.width||'';
               } else {
                   if (width < 100) width = 100;
               }
-              this.cloneColumns[i]._width = width||'';
-              // this.cloneColumns[i].leftWidth = $td[i].getBoundingClientRect().left||'';
-              this.tableWidth = this.cloneColumns.map(cell => cell.width).reduce((a, b) => a + b);
-
+              this.cloneColumns[i]._width = this.hasWidth?width:width||'';
+              this.tableWidth = this.cloneColumns.map(cell => cell._width).reduce((a, b) => a + b)||this.tableWidth;
               columnsWidth[column._index] = {
                   width: width
               };
@@ -507,14 +634,14 @@ export default {
             this.columnsWidth = columnsWidth;
           }else{
             if (!this.$refs.thead) return;
-            const $th = this.$refs.thead.$el.querySelectorAll('thead tr')[0].querySelectorAll('th');
+            const $th = this.$refs.thead.$el.querySelectorAll('thead .cur-th')[0].querySelectorAll('th');
             for (let i = 0; i < $th.length; i++) {    // can not use forEach in Firefox
               const column = this.cloneColumns[i]; 
               let width = parseInt(getStyle($th[i], 'width'));
               if (i === autoWidthIndex) {
                 width = parseInt(getStyle($th[i], 'width')) - 1;
               }
-             // 自适应列在表格宽度较小时显示异常，为自适应列设置最小宽度100（拖拽后除外）
+            // 自适应列在表格宽度较小时显示异常，为自适应列设置最小宽度100（拖拽后除外）
               if (column.width) {
                   width = column.width||'';
               } else {
@@ -528,11 +655,45 @@ export default {
             }
             this.columnsWidth = columnsWidth;
           }
-
+          this.initWidth =parseInt(getStyle(this.$refs.tableWrap, 'width')) || 0; 
         });
         // get table real height,for fixed when set height prop,but height < table's height,show scrollBarWidth
         this.bodyRealHeight = parseInt(getStyle(this.$refs.tbody.$el, 'height'))||0;
+        this.headerRealHeight = parseInt(getStyle(this.$refs.header, 'height')) || 0;
       });
+    },
+    getshiftSelect(_index){
+      if(!this.highlightRow) return;
+      switch(this.shiftSelect.length){
+        case 0:
+          this.shiftSelect[0]=_index;
+          break;
+        case 1:
+          let min=Math.min(this.shiftSelect[0],_index);
+          let max = Math.max(this.shiftSelect[0],_index);
+          this.$set(this.shiftSelect,0,min);
+          this.$set(this.shiftSelect,1,max);
+          break;
+        case 2:
+          if (_index<this.shiftSelect[0]) this.$set(this.shiftSelect,0,_index);
+          if (_index>this.shiftSelect[1]) this.$set(this.shiftSelect,1,_index);
+          break;
+        default:
+          this.shiftSelect=[];
+      }
+    },
+    getctrlSelect(_index){
+      if(!this.highlightRow) return;
+      let itemIndex = this.ctrlSelect.indexOf(_index)
+      if (itemIndex==-1) {
+        this.ctrlSelect.push(_index);
+        this.objData[_index]._isChecked = true;
+      }else{
+        this.ctrlSelect.splice(itemIndex,1);
+        this.objData[_index]._isHighlight = false;
+        this.objData[_index]._isChecked = false;
+      }
+      this.$emit('on-selection-change', this.getSelection(),this.getSelection(true));
     },
     handleMouseIn (_index) {
         if (this.disabledHover) return;
@@ -558,22 +719,44 @@ export default {
         if (curStatus && !this.selectOption) {
           this.objData[_index]._isHighlight = false;
           this.objData[_index]._isChecked = false;
-          this.$emit('on-current-change-cancle',JSON.parse(JSON.stringify(this.cloneData[_index])), oldData);
+          this.$emit('on-current-change-cancle',JSON.parse(JSON.stringify(this.cloneData[_index])), oldData,_index);
         }else{
           this.objData[_index]._isHighlight = true;
           this.objData[_index]._isChecked = true;
-          this.$emit('on-current-change', JSON.parse(JSON.stringify(this.cloneData[_index])), oldData);
+          this.$emit('on-current-change', JSON.parse(JSON.stringify(this.cloneData[_index])), oldData,_index);
         }
-        if (this.columns[0].type=='selection') {
-          let selection = []
-          selection.push(this.data[_index]);
-          this.$emit('on-selection-change', JSON.parse(JSON.stringify(selection)));
+        if (this.columns.length>0 && (this.columns[0].type=='selection'||this.columns[1].type=='selection')) {
+          const selection = this.getSelection();
+          const selectionInx = this.getSelection(true);
+          this.$emit('on-selection-change', selection,selectionInx);
         }
     },
     clickCurrentRow (_index) {
-      if (!this.rowSelect) {
-        this.highlightCurrentRow (_index);
+      //click row
+      // window.getSelection()?window.getSelection().removeAllRanges():document.selection.empty();
+      if (!window.event.shiftKey && !window.event.ctrlKey) {
+        if(!this.rowSelect){
+          this.highlightCurrentRow (_index);
+        }
+        if (this.objData[_index]._isHighlight) {
+          this.shiftSelect = [];
+          this.ctrlSelect = [];
+          this.shiftSelect[0]=_index
+          this.ctrlSelect.push(_index);
+        }else{
+          this.shiftSelect= [];
+          this.ctrlSelect = [];
+        }
+      }else if(window.event.shiftKey){
+        window.getSelection()?window.getSelection().removeAllRanges():document.selection.empty();
+        this.getshiftSelect(_index);  
+      }else{
+        this.getctrlSelect(_index);
       }
+
+      // if (!this.rowSelect) {
+      //   this.highlightCurrentRow (_index);
+      // }
       this.$emit('on-row-click', [JSON.parse(JSON.stringify(this.cloneData[_index])),_index]);
     },
     dblclickCurrentRow (_index) {
@@ -582,14 +765,15 @@ export default {
       }
       this.$emit('on-row-dblclick', JSON.parse(JSON.stringify(this.cloneData[_index])));
     },
-    getSelection () {
+    getSelection (status=false) {
       let selectionIndexes = [];
       for (let i in this.objData) {
           if (this.objData[i]._isChecked) selectionIndexes.push(parseInt(i));
       }
-      return JSON.parse(JSON.stringify(this.data.filter((data, index) => selectionIndexes.indexOf(index) > -1)));
+      return status?selectionIndexes:JSON.parse(JSON.stringify(this.data.filter((data, index) => selectionIndexes.indexOf(index) > -1)));
     },
     toggleSelect (_index) {
+      //click checkbox
       let data = {};
       for (let i in this.objData) {
         if (parseInt(i) === _index) {
@@ -601,10 +785,19 @@ export default {
       if (!status) {
         this.objData[_index]._isHighlight = false;
       }
-
+      //shift
+      if (window.event.shiftKey&&_index) {
+        this.getshiftSelect(_index);
+      }else if(!status){
+        this.shiftSelect=[]
+        this.shiftSelect[0] = _index;
+      }else{
+        this.shiftSelect=[]
+      }
       const selection = this.getSelection();
+      const selectionInx = this.getSelection(true);
       this.$emit(status ? 'on-select' : 'on-select-cancel', selection, JSON.parse(JSON.stringify(this.data[_index])));
-      this.$emit('on-selection-change', selection);
+      this.$emit('on-selection-change', selection,selectionInx);
     },
     clearAllRow(){
       for (let i in this.objData) {
@@ -626,7 +819,7 @@ export default {
     enterSingle(_index,status){
       this.$nextTick(()=>{
         this.objData[_index]._isHighlight=status;
-        this.$emit('on-current-change', JSON.parse(JSON.stringify(this.cloneData[_index])), '');
+        this.$emit('on-current-change', JSON.parse(JSON.stringify(this.cloneData[_index])), '',_index);
       });
     },
     enterSelect(_index,status){
@@ -672,21 +865,32 @@ export default {
         this.objData[_index]._isExpanded = status;
         this.$emit('on-expand', JSON.parse(JSON.stringify(this.cloneData[_index])), status);
     },
+    itemSelect(i,status){
+      let index = this.rebuildData[i]._index;
+      // if (index == undefined) return;
+      this.objData[index]._isHighlight=false;
+      if(!this.objData[index]._isDisabled){
+        this.objData[index]._isChecked = status;
+      }
+    },
     selectAll (status) {
-        for(const data of this.rebuildData){
-          this.objData[data._index]._isHighlight=false;
-          if(this.objData[data._index]._isDisabled){
-            continue;
-          }else{
-            this.objData[data._index]._isChecked = status;
-          }
+      for(const data of this.rebuildData){
+        this.objData[data._index]._isHighlight=false;
+        if(this.objData[data._index]._isDisabled){
+          continue;
+        }else{
+          this.objData[data._index]._isChecked = status;
         }
-        const selection = this.getSelection();
-        this.$emit('on-select-all', selection);
-        this.$emit('on-selection-change', selection);
+      }
+      const selection = this.getSelection();
+      const selectionInx = this.getSelection(true);
+      this.$emit('on-select-all', selection);
+      this.$emit('on-selection-change', selection,selectionInx);
     },
     fixedHeader () {
-        if (this.height) {
+      // height与maxHeight不可同时存在，若同时存在则以height为准
+        if (this.height || this.maxHeight) {
+          let setHeight = parseInt(this.height) || parseInt(this.maxHeight)
             this.$nextTick(() => {
                 const titleHeight = parseInt(getStyle(this.$refs.title, 'height')) || 0;
                 if (titleHeight>0) {
@@ -694,9 +898,10 @@ export default {
                   if(this.$refs.rightF)this.$refs.rightF.style.marginTop=titleHeight+'px';
                 }
                 // const headerHeight = parseInt(getStyle(this.$refs.header, 'height')) || 0;
-                const headerHeight = this.headerRealHeight;
+                const headerHeight = parseInt(getStyle(this.$refs.header, 'height')) || 0;
                 const footerHeight = parseInt(getStyle(this.$refs.footer, 'height')) || 0;
-                this.bodyHeight = this.height - titleHeight - headerHeight - footerHeight;
+                // this.bodyHeight = this.height - titleHeight - headerHeight - footerHeight;
+                this.bodyHeight = setHeight - titleHeight - headerHeight - footerHeight;
             });
         } else {
             this.bodyHeight = 0;
@@ -710,8 +915,9 @@ export default {
         if (this.isLeftFixed) this.$refs.fixedBody.scrollTop = event.target.scrollTop;
         if (this.isRightFixed) this.$refs.fixedRightBody.scrollTop = event.target.scrollTop;
         this.hideColumnFilter();
-        let buttomNum = getBarBottom(event.target,this.scrollBarWidth);
-        this.$emit('on-scroll',buttomNum)
+        if (this.isSummation) this.sumMarginLeft = event.target.scrollLeft
+        this.buttomNum = getBarBottom(event.target,this.scrollBarWidth);
+        this.topNum = event.target.scrollTop
     },
     handleMouseWheel (event) {
         const deltaX = event.deltaX;
@@ -739,6 +945,13 @@ export default {
         return data;
     },
     handleSort (_index, type) {
+      if(_index=='all'){
+        this.rebuildData = this.makeDataWithFilter();
+        this.cloneColumns.forEach((col,i)=>{
+          this.cloneColumns[i]._sortType = type;
+        })
+        return;
+      }
       let index;
         this.cloneColumns.forEach((col,i) => {
           col._sortType = 'normal'
@@ -763,6 +976,7 @@ export default {
         });
     },
     sortCloumn (curIndex,insertIndex,_index){
+      if (this.cloneColumns[insertIndex].fixed) return;
       const item = this.cloneColumns[curIndex];
       this.cloneColumns.splice(curIndex,1);
       this.cloneColumns.splice(insertIndex,0,item);
@@ -853,21 +1067,24 @@ export default {
         return data;
     },
     makeDataWithSort () {
-        let data = this.makeData();
-        let sortType = 'normal';
-        let sortIndex = -1;
-        let isCustom = false;
-
-        for (let i = 0; i < this.cloneColumns.length; i++) {
-            if (this.cloneColumns[i]._sortType !== 'normal') {
-                sortType = this.cloneColumns[i]._sortType;
-                sortIndex = i;
-                isCustom = this.cloneColumns[i].sortable === 'custom';
-                break;
-            }
-        }
-        if (sortType !== 'normal' && !isCustom) data =  this.sortData(data, sortType, sortIndex);
+      let data = this.makeData();
+      if(this.notSort){
         return data;
+      }
+      let sortType = 'normal';
+      let sortIndex = -1;
+      let isCustom = false;
+
+      for (let i = 0; i < this.cloneColumns.length; i++) {
+          if (this.cloneColumns[i]._sortType !== 'normal') {
+              sortType = this.cloneColumns[i]._sortType;
+              sortIndex = i;
+              isCustom = this.cloneColumns[i].sortable === 'custom';
+              break;
+          }
+      }
+      if (sortType !== 'normal' && !isCustom) data =  this.sortData(data, sortType, sortIndex);
+      return data;
     },
     makeDataWithFilter () {
       let data = this.makeData();
@@ -879,32 +1096,55 @@ export default {
       this.cloneColumns.forEach(col => data = this.filterData(data, col));
       return data;
     },
+    makeSumObjData () {
+      let data = {};
+      this.summationData.forEach((row, index) =>{
+        data[index] = deepCopy(row)
+      })
+      return data;
+    },
+    makeSumData () {
+      // 汇总数据只有一条，否则只获取第一条
+      let data = this.summationData && this.summationData.length > 0 ? [deepCopy(this.summationData[0])] : []
+      data.forEach((row, index) => {
+          row._index = index;
+          row._rowKey = rowKey++;
+      });
+      return data;
+    },
     makeObjData () {
       let data = {};
       this.data.forEach((row, index) => {
         const newRow = deepCopy(row);// todo 直接替换
         newRow._isHover = false;
-        if (newRow._disabled) {
+        // ['_checked','_disabled','_expanded','_highlight','_isMatched'].forEach(col=>{
+        //   if(newRow[col]&&newRow[col]!='false'){
+        //     newRow[col]=newRow[col];
+        //   }else{
+        //     newRow[col]=false;
+        //   }
+        // })
+        if (newRow._disabled && newRow._disabled!='false') {
             newRow._isDisabled = newRow._disabled;
         } else {
             newRow._isDisabled = false;
         }
-        if (newRow._checked) {
+        if (newRow._checked && newRow._checked!='false') {
             newRow._isChecked = newRow._checked;
         } else {
             newRow._isChecked = false;
         }
-        if (newRow._expanded) {
+        if (newRow._expanded && newRow._expanded!='false') {
             newRow._isExpanded = newRow._expanded;
         } else {
             newRow._isExpanded = false;
         }
-        if (newRow._highlight) {
+        if (newRow._highlight && newRow._highlight!="false") {
             newRow._isHighlight = newRow._highlight;
         } else {
             newRow._isHighlight = false;
         }
-        if (newRow._isMatched) {
+        if (newRow._isMatched && newRow._isMatched!="fasle") {
             newRow._isMatched = newRow._isMatched;
         } else {
             newRow._isMatched = false;
@@ -924,10 +1164,10 @@ export default {
         column._index = index;
         column._columnKey = columnKey++;
         column._width = column.width ? column.width : '';    // update in handleResize()
-        if(!!column.hiddenCol){
-          that.columns[index].width = 0;
-          column.width = 0;
-          column._width = 0;
+        if(column.hiddenCol&&column.hiddenCol!="false"){
+          // that.columns[index].width = 0;
+          // column.width = 0;
+          // column._width = 0;
         }
         column._sortType = 'normal';
         column._filterVisible = false;
@@ -946,7 +1186,7 @@ export default {
         if ('sortType' in column) {
             column._sortType = column.sortType;
         }
-        if (!column.hiddenCol) {
+        if (!column.hiddenCol || column.hiddenCol=='false') {
           if (column.fixed && column.fixed === 'left') {
               left.push(column);
           } else if (column.fixed && column.fixed === 'right') {
@@ -981,9 +1221,28 @@ export default {
         let noHeader = false;
         if ('noHeader' in params) noHeader = params.noHeader;
 
-        const data = Csv(columns, datas, ',', noHeader);
+        // const data = Csv(columns, datas, ',', noHeader);
+        const data = Csv(columns, datas, params, noHeader);
         ExportCsv.download(params.filename, data);
-    }
+    },
+    moveUp(colIndex){
+      const curItem = this.rebuildData[colIndex];
+      this.rebuildData.splice(colIndex,1,)
+      this.rebuildData.splice(colIndex,0,curItem)
+    },
+    moveDown(colIndex){
+      const curItem = this.rebuildData[colIndex];
+      this.rebuildData.splice(colIndex,1,curItem )
+    },
+    selectRange(){
+      for (var i = this.shiftSelect[0]; i <= this.shiftSelect[1]; i++) {
+        this.objData[i]._isHighlight=false;
+        if(!this.objData[i]._isDisabled){
+          this.objData[i]._isChecked = true;
+        }
+      }
+      this.$emit('on-selection-change', this.getSelection(),this.getSelection(true));
+    },
   },
   created () {
       if (!this.context) this.currentContext = this.$parent;
@@ -992,16 +1251,12 @@ export default {
       this.rebuildData = this.makeDataWithSortAndFilter();
   },
   mounted () {
-    if (this.showHeader) {
-      if (!!this.size) {
-        this.headerRealHeight = this.size=='small'?35:48;
-      }else{
-        this.headerRealHeight=42;
-      }
-    }
-    if (this.columns[0].type && this.columns[0].type=='selection') {
-      this.selectType=true;
-    }
+    this.$on('on-expand',()=>{
+      this.$nextTick(()=>{
+        this.bodyRealHeight = parseInt(getStyle(this.$refs.tbody.$el, 'height'))||0;
+        this.handleResize();
+      })
+    })
     this.handleResize();
     this.fixedHeader();
     this.$nextTick(() => {
@@ -1010,17 +1265,24 @@ export default {
     });
     //window.addEventListener('resize', this.handleResize, false);
     on(window, 'resize', this.handleResize);
-    on(window, 'resize', ()=>{
-      this.$nextTick(() => {
-        this.initWidth =parseInt(getStyle(this.$refs.tableWrap, 'width')) || 0; 
-      });
-    });
     this.$on('on-visible-change', (val) => {
         if (val) {
             this.handleResize();
             this.fixedHeader();
         }
     });
+  },
+  activated() {
+    if (this.keepAliveFlag) {
+      this.handleResize();
+      on(window, 'resize', this.handleResize);
+    }
+    this.keepAliveFlag = true    
+  },
+  deactivated() {
+    if (this.keepAliveFlag) {
+      off(window, 'resize', this.handleResize);
+    }
   },
   beforeDestroy () {
       //window.removeEventListener('resize', this.handleResize, false);
@@ -1039,7 +1301,9 @@ export default {
           // here will trigger before clickCurrentRow, so use async
           setTimeout(() => {
             this.cloneData = deepCopy(this.data);
+            this.buttomNum = null;
           }, 0);
+          
         },
         deep: true
       },
@@ -1057,7 +1321,16 @@ export default {
       },
       hasWidth(){
         this.handleResize();
-      }
+      },
+      buttomNum(val,oldvalue){
+        if (val==null || oldvalue==null) return;
+        this.$emit('on-scroll',this.buttomNum,this.topNum);
+      },
+      shiftSelect(val){
+        if (val.length==2) {
+          this.selectRange();
+        }
+      }, 
   }
 };
 </script>

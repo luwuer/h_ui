@@ -25,6 +25,8 @@
                   :disabled="rowDisabled(row._index)"
                   :expanded="rowExpanded(row._index)"
                   :showEditInput="showEditInput"
+                  :option="option"
+                  :treeOption="treeOption"
                 >
                   <span v-if="inx==(columns[0].type=='index'?1:0)" :style="indentCls" >
                     <Icon v-if="row.children && row.children.length!=0" :class="iconClass(row._index)" name = "play_fill" @on-click="toggleExpand(row._index,$event)"></Icon>
@@ -43,6 +45,7 @@
               :prefix-cls="prefixCls"
               :typeName = "typeName"
               :columns = "columns"
+              :columnsWidth="columnsWidth"
               :showEditInput="showEditInput"
               :isCheckbox="isCheckbox">
             </Tree-table>
@@ -66,11 +69,20 @@
       columns:Array,
       indent:Number,
       parent:Object,
-      data: Array,
+      // data: Array,
+      data: {
+        type: Array,
+        default: () => {
+          return []
+        }
+      },
       prefixCls: String,
       typeName:String,
       showEditInput:Boolean,
       isCheckbox:Boolean,
+      option:Array,
+      treeOption:Array,
+      columnsWidth:Object,
     },
     computed: {
       objData () {

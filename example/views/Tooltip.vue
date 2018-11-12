@@ -8,7 +8,7 @@
     <br>
     <h1>上下左右</h1>
     <div class="top">
-      <h-tooltip content="Top Left 文字提示" placement="top-start">
+      <h-tooltip content="Top Left 文字提示" placement="top-start" imdiaClose>
           <h-button>上左</h-button>
       </h-tooltip>
       <h-tooltip content="Top Center 文字提示" placement="top">

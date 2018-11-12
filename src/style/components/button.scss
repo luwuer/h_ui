@@ -6,12 +6,12 @@ $btn-prefix-cls: "#{$css-prefix}btn";
     width: 100%;
   }
   .iconfont{
-    font-size: 12px;
+    font-size: $font-size-small;
   }
 
   & > .h-icon + span, & > span + .h-icon{
     margin-left: 4px;
-    font-size: 10px;
+    font-size: $font-size-small;
   }
 
   &-primary {
@@ -72,6 +72,10 @@ $btn-prefix-cls: "#{$css-prefix}btn";
 
   &-text{
     @include btn-text;
+  }
+
+  &-danger{
+    @include btn-danger;
   }
 
   &-success {

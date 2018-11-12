@@ -18,7 +18,9 @@ $editgird-select-item-prefix-cls: "#{$editgird-prefix-cls}-filter-select-item";
   &-hide{
     opacity: 0;
   }
-
+  &-tip{
+    overflow:auto;
+  }
   &:before{
     content: '';
     width: 100%;
@@ -40,9 +42,9 @@ $editgird-select-item-prefix-cls: "#{$editgird-prefix-cls}-filter-select-item";
     background-color: $border-color-base;
     z-index: 3;
   }
-  table{
-    table-layout: fixed;//col need
-  }
+  // & table{
+  //   table-layout: fixed;
+  // }
   &-with-header{
     //border-radius: $border-radius-base $border-radius-base 0 0;
   }
@@ -59,7 +61,7 @@ $editgird-select-item-prefix-cls: "#{$editgird-prefix-cls}-filter-select-item";
   &-title, &-footer{
     height: 42px;
     line-height: 42px;
-    border-bottom: 1px solid $border-color-split;
+    border-bottom: 1px solid $border-color-bottom;
   }
   &-footer{
     border-bottom: none;
@@ -87,9 +89,10 @@ $editgird-select-item-prefix-cls: "#{$editgird-prefix-cls}-filter-select-item";
   {
     min-width: 0;
     height: $table-normal-td;
+    box-sizing: border-box;
     text-align: left;
     vertical-align: middle;
-    border-bottom: 1px solid $border-color-split;
+    border-bottom: 1px solid #DCE1E7;
   }
 
   th {
@@ -100,7 +103,7 @@ $editgird-select-item-prefix-cls: "#{$editgird-prefix-cls}-filter-select-item";
     font-size: $font-size-base;
   }
   td{
-    background-color: #fff;
+    background-color: transparent;
     transition: background-color $transition-time $ease-in-out;
   }
 
@@ -118,19 +121,18 @@ $editgird-select-item-prefix-cls: "#{$editgird-prefix-cls}-filter-select-item";
     }
   }
 
-  & editgird{
+  & table{
     //width: 100%;
-    editgird-layout: fixed;
+    table-layout: fixed;
   }
   &-border{
     th,td{
-        border-right: 1px solid $border-color-split;
+        border-right: 1px solid#DCE1E7;
     }
   }
   &-cell{
     width: 100%;
     padding: 5px 15px;
-    // text-overflow: ellipsis;
     white-space: normal;
     word-break: break-all;
 
@@ -151,9 +153,9 @@ $editgird-select-item-prefix-cls: "#{$editgird-prefix-cls}-filter-select-item";
       div{
         float:left;
       }
-      div:first-child{
-        padding-right:10px;
-      }
+      // div:first-child{
+      //   padding-right:10px;
+      // }
     }
     &-group{
       width: 100%;
@@ -180,6 +182,7 @@ $editgird-select-item-prefix-cls: "#{$editgird-prefix-cls}-filter-select-item";
   &-icon-click{
     display: inline-block;
     cursor: pointer;
+    font-size: $font-size-base;
     transition: transform $transition-time $ease-in-out;
     &-expanded{
       transform: rotate(90deg);
@@ -216,8 +219,13 @@ $editgird-select-item-prefix-cls: "#{$editgird-prefix-cls}-filter-select-item";
   }
   tr.#{$editgird-prefix-cls}-title-expand{
     td{
-      color: #111;
-      background-color: $table-td-group-bg !important;
+     // color: #111;
+     // background-color: $table-td-group-bg !important;
+      // font-family: MicrosoftYaHei-Bold;
+      color: #495060;
+      // text-align: left;
+      //line-height: 22px;
+      font-weight: bold;
     }
   }
   &-large {
@@ -256,17 +264,41 @@ $editgird-select-item-prefix-cls: "#{$editgird-prefix-cls}-filter-select-item";
     top: 0;
     left: 0;
     box-shadow: 2px 0 6px -2px rgba(0, 0, 0, 0.2);
-
-    &::before {
-      content: '';
-      width: 100%;
-      height: 1px;
-      background-color: $border-color-base;
-      position: absolute;
-      left: 0;
-      bottom: 0;
-      z-index: 4;
-    }
+    border-bottom:none;
+    // &::before {
+    //   content: '';
+    //   width: 100%;
+    //   height: 1px;
+    //   background-color: $border-color-base;
+    //   position: absolute;
+    //   left: 0;
+    //   bottom: 0;
+    //   z-index: 4;
+    // }
+  }
+  &-fixed-right{
+    top: 0;
+    left: auto;
+    right: 0;
+    box-shadow: -2px 0 6px -2px rgba(0, 0, 0, 0.2);
+  }
+  &-fixed-right-patch{
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: $table-thead-bg;
+    border-bottom:1px solid $border-color-bottom;
+    // border-bottom: 1px solid #e6ebf5;
+  }
+  &-fixed-shadow {
+    width: 1px;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    right: 0;
+    box-shadow: $shadow-right;
+    overflow: hidden;
+    z-index: 1;
   }
 
   &-fixed-header{
@@ -275,6 +307,7 @@ $editgird-select-item-prefix-cls: "#{$editgird-prefix-cls}-filter-select-item";
   &-fixed-body{
     overflow: hidden;
     position: relative;
+    background:#fff;
     z-index: 3;
   }
   &-tip {
@@ -286,5 +319,8 @@ $editgird-select-item-prefix-cls: "#{$editgird-prefix-cls}-filter-select-item";
       }
     }
   }
+}
+.dbClass{
+  min-height:18px;
 }
 

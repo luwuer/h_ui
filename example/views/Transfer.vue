@@ -1,5 +1,14 @@
 <template>
   <div>
+    <h1>理财5.0</h1>
+    <h-transfer
+      :data="data0"
+      :target-keys="targetKeys0"   
+      contentSplit 
+      filterable
+    >
+      <span slot="footer"> 124</span>
+    </h-transfer>
     <p>概述：双栏穿梭选择框，常用于将多个项目从一边移动到另一边</p>
     <p><i>:data：总体数据，数组，每项为一个对象，且必须含有 key 值，组件基于此做索引。</i><br>
       <i>:target-keys：目标列索引集合，数组，每项为数据的 key 值，Transfer 会将含有这些 key 值的数据筛选到右边。</i><br>
@@ -11,7 +20,11 @@
       :data="data1"
       :target-keys="targetKeys1"
       :render-format="render1"
-      @on-change="handleChange1"></h-transfer>
+      @on-change="handleChange1">
+      1245
+      <span slot="footer"> 124</span>
+      <span slot="operation"><h-button>我是自定义操作</h-button></span>
+    </h-transfer>
     <h2>搜索</h2>
     <p>通过设置属性 filterable 可以进行搜索，可以自定义搜索函数</p>
     <h-transfer
@@ -25,7 +38,7 @@
 
     <h2>高级用法</h2>
     <p>穿梭框高级用法，可以自定义两列的宽高、操作文案，以及底部自定义操作，更多配置见 API。</p>
-    <h-transfer
+    <!-- <h-transfer
       :data="data3"
       :target-keys="targetKeys3"
       :list-style="listStyle"
@@ -37,7 +50,7 @@
       <div :style="{float: 'right', margin: '5px'}">
           <h-button type="ghost" size="small" @click="reloadMockData">刷新</h-button>
       </div>
-    </h-transfer>
+    </h-transfer> -->
 
   </div>
 </template>
@@ -45,6 +58,8 @@
   export default {
     data () {
       return {
+        data0:this.getMockData(),
+        targetKeys0:[],
         data1: this.getMockData(),
         targetKeys1: this.getTargetKeys(),
         data2: this.getMockData(),
@@ -66,7 +81,7 @@
             key: i.toString(),
             label: '内容' + i,
             description: '内容' + i + '的描述信息',
-            disabled: Math.random() * 3 < 1
+            // disabled: Math.random() * 3 < 1
           });
         }
         return mockData;
@@ -80,6 +95,9 @@
         return item.label;
         //自定义渲染数据列
         // return item.label + ' - ' + item.description;
+      },
+      handlechnage0(newTargetKeys, direction, moveKeys){
+        this.targetKeys0 = newTargetKeys;
       },
       handleChange1 (newTargetKeys, direction, moveKeys) {
         console.log(newTargetKeys);

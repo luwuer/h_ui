@@ -24,7 +24,7 @@
         @blur="blur"
         @keydown.stop="keyDown"
         @input = "change"
-        @change="change"
+        @change = "change"
         :value="precisionValue"
         :readonly="!editable ||readonly">
     </div>
@@ -232,8 +232,17 @@
       focus () {
         this.focused = true;
       },
-      blur () {
+      blur (event) {
+        let val = Number(event.target.value.trim());
         this.focused = false;
+        const {min, max} = this;
+        if (val > max) {
+            this.setValue(max);
+        } else if (val < min) {
+            this.setValue(min);
+        } else {
+            this.setValue(val);
+        }
       },
       keyDown (e) {
         if (e.keyCode === 38) {
@@ -257,13 +266,13 @@
         if (!isNaN(val) && !isEmptyString) {
           this.currentValue = val;
 
-          if (val > max) {
-              this.setValue(max);
-          } else if (val < min) {
-              this.setValue(min);
-          } else {
-              this.setValue(val);
-          }
+          // if (val > max) {
+          //     this.setValue(max);
+          // } else if (val < min) {
+          //     this.setValue(min);
+          // } else {
+          //     this.setValue(val);
+          // }
         } else {
           event.target.value = this.currentValue;
         }
@@ -283,10 +292,11 @@
     },
     mounted () {
       this.changeVal(this.currentValue);
+      if(this.value<this.min)  this.setValue (this.min);
     },
     watch: {
       value (val) {
-        this.currentValue = val;
+        this.currentValue = val<this.min?this.min:val;
       },
       currentValue (val) {
         this.changeVal(val);

@@ -1,8 +1,9 @@
 <template>
   <div>
     <!-- <h-msg-box v-model="changeform" width="900"> -->
-      <h-form ref="formItem1" :model="formItem1" :compareModel="formItem2" :label-width="80" errorFocus cols="2">
-        <h-form-item label="输入框" prop="input" required>
+      <Button @on-click="changeRequired">改变require</Button>
+      <h-form ref="formItem1" :model="formItem1" :compareModel="formItem2" :label-width="80" errorFocus cols="3" placement="top-start">
+        <h-form-item label="输入框" prop="input" :required="isrequired">
           <h-input v-model="formItem1.input" placeholder="请输入"></h-input>
         </h-form-item>
         <h-form-item label="日期控件">
@@ -20,8 +21,8 @@
             </h-col>
           </h-row>
         </h-form-item>
-        <h-form-item label="选择器" prop="select" required>
-          <h-select v-model="formItem1.select" filterable>
+        <h-form-item label="选择器" prop="select">
+          <h-select v-model="formItem1.select" filterable disabled>
             <h-option value="beijing">北京市</h-option>
             <h-option value="shanghai">上海市</h-option>
             <h-option value="shenzhen">深圳市</h-option>
@@ -29,17 +30,16 @@
         </h-form-item>
         <h-form-item label="金额框" prop="money" required>
           <h-typefield v-model="formItem1.money">
-           <!--  <h-select v-model="select1" slot="prepend" style="width: 80px">
-              <h-option value="http">http://</h-option>
-              <h-option value="https">https://</h-option>
-            </h-select> -->
-
             <h-select v-model="select2" placeholder="" slot="append" style="width: 45px" :isArrow="false" :clearable="false" :tranfer="true">
             <h-option value="com">.com</h-option>
             <h-option value="org">.org</h-option>
             <h-option value="io">.io</h-option>
           </h-select>
           </h-typefield>
+        </h-form-item>
+        <h-form-item label="金额框" prop="moneyrange" required>
+          <h-typefield-range v-model="formItem1.moneyrange">
+          </h-typefield-range>
         </h-form-item>
         <h-form-item label="单选框" prop="radio" required>
           <h-radio-group v-model="formItem1.radio">
@@ -55,14 +55,39 @@
               <h-checkbox label="看电影"></h-checkbox>
           </h-checkbox-group>
         </h-form-item>
-        <h-form-item label="特殊日期" required prop="fatdate" required>
+        <h-form-item label="特殊日期" prop="fatdate" required>
           <h-fast-date v-model="formItem1.fatdate"></h-fast-date>
         </h-form-item>
-        <h-form-item label="特殊日期" required prop="fatdate" required>
+        <h-form-item label="特殊日期" prop="fatdate" required>
           <h-fast-date v-model="formItem1.fatdate"></h-fast-date>
         </h-form-item>
-        <h-form-item label="特殊日期" required prop="fatdate" required>
+        <h-form-item label="特殊日期" prop="fatdate" required>
           <h-fast-date v-model="formItem1.fatdate"></h-fast-date>
+        </h-form-item>
+        <h-form-item label="下拉单选" prop="select1" required>
+          <h-select v-model="formItem1.select1"
+            width="260"
+            multiple
+            size="large"
+            :isString="true"
+            showTitle
+            >
+            <h-option v-for="item in cy.options1"
+              :value="item.value"
+              :key="item.value">{{ item.label }}
+            </h-option>
+          </h-select>
+        </h-form-item>
+        <h-form-item label="下拉多选" prop="select2" required>
+          <h-select v-model="formItem1.select2"
+                    width="260"
+                    :isString="true"
+                    showTitle
+                    on-change="cy_change_test">
+            <h-option v-for="item in cy.options1"
+                      :value="item.value"
+                      :key="item.value">{{ item.label }}</h-option>
+          </h-select>
         </h-form-item>
         <h-form-item label="下拉表" prop='slider' required>
           <h-select-table v-model="formItem1.slider" >
@@ -84,7 +109,7 @@
         </h-form-item>
       </h-form>
     <!-- </h-msg-box> -->
-    <!-- <Button @on-click="changeform1">显示隐藏</Button> -->
+    <Button @on-click="changeform1">显示隐藏</Button>
     <h-select-table v-model="model1" ref="changeDrop">
       <h-table-option border :columns="columns1" :data="data1"></h-table-option>
     </h-select-table>
@@ -127,6 +152,7 @@
   export default {
     data () {
       return {
+        isrequired:true,
         phone:0,
         lists:[{data_value:'男'},{data_value:'女'}],
         model1:'',
@@ -134,8 +160,11 @@
         formItem1: {
           input: '1',
           select: [],
+          select1: '',
+          select2: [],
           radio: '',
           money: '',
+          moneyrange:[],
           checkbox: [],
           fatdate: '',
           date: '',
@@ -150,6 +179,7 @@
           select: '',
           radio: '',
           money: '',
+          moneyrange:[],
           checkbox: [],
           fatdate: '',
           date: '',
@@ -157,6 +187,8 @@
           slider: '',
           tree:'',
           textarea: '',
+          select1: '',
+          select2: [],
         },
         data2: [{
           value: 'beijing',
@@ -285,9 +317,34 @@
           }
         ],
         firstValc: 'parent',
+        cy: {
+          value1: '',
+          value2: '',
+          options1: [
+            {
+              value: '1',
+              label: '&nbsp;<a herf="www.google.com"></a><script><\/script>'
+            },
+            {
+              value: '2',
+              label: '从前有座山山上有座庙庙里有个老和尚和一个小和尚'
+            },
+            {
+              value: '3',
+              label: '水缸'
+            },
+            {
+              value: '4',
+              label: '扁担儿'
+            }
+          ]
+        }
       }
     },
     methods: {
+      changeRequired(){
+        this.isrequired=!this.isrequired;
+      },
       changeform1(){
         this.changeform = !this.changeform;
       },

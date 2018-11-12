@@ -10,6 +10,7 @@ $select-group-prefix-cls:  "#{$css-prefix}selectTable-group";
     color: $text-color;
     font-size: $font-size-base;
     line-height: normal;
+    height: $form-component-height;
     position: relative;
 
     &-selection {
@@ -224,8 +225,8 @@ $select-group-prefix-cls:  "#{$css-prefix}selectTable-group";
             top: 0;
             z-index: 1;
             input {
-                height: 32px;
-                line-height: 32px;
+                // height: 32px;
+                // line-height: 32px;
                 padding: 0 5px;
                 border: 1px solid #D7DDE4; 
             }
@@ -280,8 +281,6 @@ $select-group-prefix-cls:  "#{$css-prefix}selectTable-group";
             top: 0;
             z-index: 1;
             input {
-                height: 33px;
-                line-height: 33px;
                 border: 0;
                 padding: 0 5px;
                 border-radius: 0;
@@ -326,14 +325,11 @@ $select-group-prefix-cls:  "#{$css-prefix}selectTable-group";
         .#{$selectTable-prefix-cls}-checkHead{
             .h-checkbox-wrapper{
                 margin-left:12px;
+                margin-right:5px;
             }
         }
     }
-    &-checkHead{
-        input{
-            width: calc(100% - 40px)
-        }
-    }
+    &-dropdown-list
     &-left{
         text-align:left;
     }
@@ -342,6 +338,11 @@ $select-group-prefix-cls:  "#{$css-prefix}selectTable-group";
     }
     &-right{
         text-align:right;
+    }
+}
+.#{$selectTable-prefix-cls}-checkHead{
+    input{
+        width: calc(100% - 45px)
     }
 }
 

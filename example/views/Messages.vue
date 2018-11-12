@@ -19,16 +19,16 @@
 export default {
   methods: {
     info () {
-      this.$hMessage.info('这是一条普通的提醒');
+      this.$hMessage.info('这是一条普通消息，会主动消失');
     },
     success () {
-      this.$hMessage.success('这是一条成功的提示');
+      this.$hMessage.success('这是一条成功消息，会主动消失');
     },
     warning () {
-      this.$hMessage.warning('这是一条警告的提示');
+      this.$hMessage.warning('这是一条警告消息，会主动消失');
     },
     error () {
-      this.$hMessage.error('对方不想说话，并且向你抛出了一个异常');
+      this.$hMessage.error('这是一条异常消息，会主动消失');
     },
     time () {
       this.$hMessage.info({

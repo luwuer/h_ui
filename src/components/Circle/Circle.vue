@@ -36,7 +36,7 @@
       },
       strokeColor: {
         type: String,
-        default: '#2db7f5'
+        default: '#298DFF'
       },
       strokeLinecap: {
         validator (value) {
@@ -50,7 +50,7 @@
       },
       trailColor: {
         type: String,
-        default: '#eaeef2'
+        default: ' #F7F7F7'
       }
     },
     computed: {

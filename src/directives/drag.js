@@ -15,11 +15,11 @@ export default {
       	document.body.style.userSelect='none';
          var l=ev.clientX-disX;
          var t=ev.clientY-disY;
-         // if (isVertical) t = t-pel.offsetTop;
+				 // if (isVertical) t = t-pel.offsetTop;
+				 if (!obj[1]&&l+width>clWidth) {l=clWidth-width};
+         if (!obj[1]&&t+height>clHeight) {t=clHeight-height};
          if (l<0) l=0;
          if (t<0) t=0;
-         if (!obj[1]&&l+width>clWidth) {l=clWidth-width}
-         if (!obj[1]&&t+height>clHeight) {t=clHeight-height}
          pel.style.left=l+'px';
          pel.style.top=t+'px';
       };

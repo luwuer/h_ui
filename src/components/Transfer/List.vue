@@ -1,9 +1,10 @@
 <template>
   <div :class="classes" :style="listStyle">
     <div :class="prefixCls + '-header'">
-        <Checkbox :value="checkedAll" :disabled="checkedAllDisabled" @on-change="toggleSelectAll"></Checkbox>
+        <Checkbox v-if="!(contentSplit&&direcPanel=='right')" :value="checkedAll" :disabled="checkedAllDisabled" @on-change="toggleSelectAll"></Checkbox>
         <span :class="prefixCls + '-header-title'" @click="toggleSelectAll(!checkedAll)">{{ title }}</span>
-        <span :class="prefixCls + '-header-count'">{{ count }}</span>
+        <span v-if="!contentSplit" :class="prefixCls + '-header-count'">{{ count }}</span>
+        <span v-if="contentSplit&&direcPanel=='right'" :class="prefixCls + '-header-count head-clear'" @click="clearTarget">清除</span>
     </div>
     <div :class="bodyClasses">
         <div :class="prefixCls + '-body-search-wrapper'" v-if="filterable">
@@ -15,13 +16,15 @@
                 :placeholder="filterPlaceholder"></Search>
         </div>
         <ul :class="prefixCls + '-content'">
-            <Draggable :move="getdata" @update="datadragEnd" :options="{animation: 200}">
+            <Draggable :move="getdata" @update="datadragEnd" :options="{animation: 200}" v-model="filterData">
                 <li
-                    v-for="item in filterData"
+                    v-for="(item,i) in filterData"
                     :class="itemClasses(item)"
-                    @click.prevent="select(item)">
-                    <Checkbox :value="isCheck(item)" :disabled="item.disabled"></Checkbox>
+                    :key="i"
+                    @click="select(item)">
+                    <Checkbox v-if="!(contentSplit&&direcPanel=='right')" :value="isCheck(item)" :disabled="item.disabled" @on-change="checkChange($event,item)"></Checkbox>
                     <span v-html="showLabel(item)"></span>
+                    <span v-if="contentSplit&&direcPanel=='right'" class="delete-icon"><Icon name="android-delete" @on-click="checkChange(false,item)"></Icon></span>
                 </li>
                 <li :class="prefixCls + '-content-not-found'" v-if="!showData">{{ notFoundText }}</li>
             </Draggable>
@@ -51,14 +54,16 @@
             filterMethod: Function,
             notFoundText: String,
             notFoundData: String,
-            validKeysCount: Number
+            validKeysCount: Number,
+            direcPanel:String,
         },
         data () {
             return {
                 showItems: [],
                 query: '',
                 showFooter: true,
-                showData:false
+                showData:false,
+                contentSplit:false,
             };
         },
         watch: {
@@ -94,13 +99,18 @@
             checkedAllDisabled () {
                 return this.data.filter(data => !data.disabled).length <= 0;
             },
-            filterData () {
-                if (this.data.length == 0) {
-                   this.showData = true;
-                }else {
-                   this.showData = false;
+            filterData: {
+                set: function (newVal) {
+                    this.showItems = newVal
+                },
+                get: function () {
+                    if (this.data.length == 0) {
+                        this.showData = true;
+                    }else {
+                        this.showData = false;
+                    }
+                    return this.showItems.filter(item => this.filterMethod(item, this.query));
                 }
-                return this.showItems.filter(item => this.filterMethod(item, this.query));
             }
         },
         methods: {
@@ -108,7 +118,8 @@
                 return [
                     `${this.prefixCls}-content-item`,
                     {
-                        [`${this.prefixCls}-content-item-disabled`]: item.disabled
+                        [`${this.prefixCls}-content-item-disabled`]: item.disabled,
+                        [`${this.prefixCls}-content-item-right`]: this.direcPanel=="right",
                     }
                 ];
             },
@@ -119,7 +130,7 @@
                 return this.checkedKeys.some(key => key === item.key);
             },
             select (item) {
-                if (item.disabled) return;
+                if (item.disabled || this.contentSplit) return;
                 const index = this.checkedKeys.indexOf(item.key);
                 index > -1 ? this.checkedKeys.splice(index, 1) : this.checkedKeys.push(item.key);
             },
@@ -128,9 +139,10 @@
             },
             toggleSelectAll (status) {
                 const keys = status ?
-                        this.data.filter(data => !data.disabled || this.checkedKeys.indexOf(data.key) > -1).map(data => data.key) :
-                        this.data.filter(data => data.disabled && this.checkedKeys.indexOf(data.key) > -1).map(data => data.key);
+                    this.data.filter(data => !data.disabled || this.checkedKeys.indexOf(data.key) > -1).map(data => data.key) :
+                    this.data.filter(data => data.disabled && this.checkedKeys.indexOf(data.key) > -1).map(data => data.key);
                 this.$emit('on-checked-keys-change', keys);
+                if(this.contentSplit) this.$parent.changeRight(status);
             },
             handleQueryClear () {
                 this.query = '';
@@ -141,13 +153,29 @@
             getdata: function(evt){
             },
             datadragEnd:function(evt){ 
-            }  
+                if (this.direcPanel == 'right') {
+                    this.$emit('on-right-drag-change', this.filterData)
+                }
+            },
+            clearTarget(){
+                this.$parent.changeRight(false);
+            },
+            checkChange(status,item){
+                if(!this.contentSplit) return false;
+                if(status){
+                    this.$parent.addRight(item);
+                }else{
+                    this.$parent.deleteRight(item);
+                }
+            }
+              
         },
         created () {
             this.updateFilteredData();
         },
         mounted () {
             this.showFooter = this.$slots.default !== undefined;
+            this.contentSplit = this.$parent.contentSplit;
         }
     };
 </script>

@@ -222,9 +222,11 @@
             let firstItem = this.$refs.table.$el.querySelectorAll('.h-table-row-filterable')[0];
             if (firstItem) {
               let top = firstItem.offsetTop;
-              scrollAnimate(this.$parent.$parent.$refs.list,this.$parent.$parent.$refs.list.scrollTop,top);
+              this.$parent.$parent.$refs.list.scrollTop=top;
+              // scrollAnimate(this.$parent.$parent.$refs.list,this.$parent.$parent.$refs.list.scrollTop,top);
             }else{
-              scrollAnimate(this.$parent.$parent.$refs.list,this.$parent.$parent.$refs.list.scrollTop,0);
+              this.$parent.$parent.$refs.list.scrollTop=0;
+              // scrollAnimate(this.$parent.$parent.$refs.list,this.$parent.$parent.$refs.list.scrollTop,0);
             }
           });
         }

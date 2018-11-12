@@ -13,7 +13,8 @@ $notice-margin-bottom: 10px;
 
   &-notice {
     margin-bottom: $notice-margin-bottom;
-    padding: $notice-padding;
+    // padding: $notice-padding;
+    padding: 16px 24px;
     //border: 1px solid $border-color-split;
     border-radius: $border-radius-small;
     box-shadow: $shadow-base;
@@ -43,11 +44,13 @@ $notice-margin-bottom: 10px;
 
   &-title {
     font-size: $font-size-base;
-    color: $title-color;
+    font-weight: 700;
+    color: #495060;
     padding-right: 10px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    display: inline-block;
   }
   &-with-desc &-title{
     margin-bottom: 8px;
@@ -60,19 +63,21 @@ $notice-margin-bottom: 10px;
       line-height: 1.5;
   }
   &-with-icon &-title{
-    margin-left: 26px;
+    margin-left: 8px;
   }
   &-with-desc &-title{
-    margin-left: 51px;
+    margin-left: 8px;
   }
   &-with-desc &-desc{
-    margin-left: 51px;
+    margin-left: 48px;
   }
   &-icon {
-    position: absolute;
-    left: 20px;
+    // position: absolute;
+    position: relative;
+    left: 0px;
     margin-top: -1px;
     font-size: 18px;
+    display: inline-block;
 
     &-success {
       color: $success-color;

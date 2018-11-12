@@ -1,7 +1,23 @@
 <template>
     <div>
-         <h1>测试</h1>
-        <h-form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="250" label-position='left' :showMessage="true">
+        <h1>异步测试</h1>
+        <h-form ref="formCustom" :model="formCustom" :rules="ruleCustom" :label-width="80">
+            <h-form-item label="密码" prop="passwd">
+                <h-input type="password" v-model="formCustom.passwd"></h-input>
+            </h-form-item>
+            <h-form-item label="年龄" prop="age">
+                <h-input type="text" v-model="formCustom.age" number></h-input>
+            </h-form-item>
+            <h-form-item label="确认密码" prop="passwdCheck">
+                <h-input type="password" disabled v-model="formCustom.passwdCheck"></h-input>
+            </h-form-item>
+            <h-form-item>
+                <h-button type="primary" @click="handleSubmit('formCustom')">提交</h-button>
+                <h-button type="ghost" @click="handleReset('formCustom')" style="margin-left: 8px">重置</h-button>
+            </h-form-item>
+        </h-form>
+        <h1>测试</h1>
+        <h-form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="250" label-position='left' :showMessage="true" placement="top-start">
             <h-form-item label="姓名" prop="name" :label-width="50" :showMessage="true">
               <h-typefield v-model="formValidate.name" type="money" ></h-typefield>
             </h-form-item>   
@@ -250,38 +266,9 @@
                 </h-form>    
             </h-col>
         </h-row>
-        <br>
-        <p>form.rules中自定义validator</p>
-        <h-row>
-            <h-col span="12">
-                <h-form ref="formCustom" :model="formCustom" :rules="ruleInline" inline :label-width="80">
-                    <h-form-item label="密码" prop="passwd">
-                        <h-input type="password" v-model="formCustom.passwd" placeholder="password">
-                            <h-icon name="people" slot="prepend"></h-icon>
-                        </h-input>
-                    </h-form-item>
-                    <h-form-item label="确认密码" prop="passwdCheck">
-                        <h-input type="password" v-model="formCustom.password" placeholder="passwordCheck">
-                            <h-icon name="lock" slot="prepend"></h-icon>
-                        </h-input>
-                    </h-form-item>
-                    <h-form-item  label="年龄" prop="age">
-                        <h-input type="text" v-model="formCustom.age" placeholder="age">
-                            <h-icon name="lock" slot="prepend"></h-icon>
-                        </h-input>
-                    </h-form-item>
-                    <h-form-item>
-                        <h-button type="primary" @click="handleSubmit('formCustom')">登录</h-button>
-                        <h-button type="ghost" @click="handleReset('formCustom')" style="margin-left: 8px">重置</h-button>
-                    </h-form-item>
-                </h-form>
-            </h-col>
-        </h-row> 
-        <br>
         <h1>动态增减表单项</h1>
         <br>
-        <p>当需要动态维护 FormItem 时，也可以直接给 FormItem 设置属性 rules 来单独为该域做验证。
-动态设置 FormItem 的 prop 属性时，会依据上层的 Form 组件的 model 来获取，
+        <p>当需要动态维护 FormItem 时，也可以直接给 FormItem 设置属性 rules 来单独为该域做验证。动态设置 FormItem 的 prop 属性时，会依据上层的 Form 组件的 model 来获取，
         </p>
         <h-row>
             <h-col span="12">
@@ -818,15 +805,15 @@
                     password: ''
                 },
                 formItem: {
-                    input: '',
-                    select: '',
+                    input: '12',
+                    select: 'beijing',
                     radio: '',
                     checkbox: [],
                     switch: true,
-                    date: '',
-                    time: '',
+                    date: '2018-08-30',
+                    time: '01:00:00',
                     slider: [20, 50],
-                    textarea: ''
+                    textarea: '123'
                 },
                  formLeft: {
                     input1: '',
@@ -889,8 +876,16 @@
                     ]
                 },
                 userValid: [
-                     { required: true, message: '请输入用户名', trigger: 'blur' },
-                     { type: 'string', min: 20, message: '介绍不能少于20字', trigger: 'change' }
+                    {
+                      validator(rule, value, callback) {
+                        setTimeout(() => {
+                          callback([new Error(rule.message)]);
+                        }, 100);
+                      },
+                      message: 'async fails',
+                    },
+                     // { required: true, message: '请输入用户名', trigger: 'blur' },
+                     // { type: 'string', min: 20, message: '介绍不能少于20字', trigger: 'change' }
                 ],
                 
                 ruleCustom: {

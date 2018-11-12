@@ -8,8 +8,8 @@
       :placeholder="localePlaceholder" 
       :value="inputValue" 
       @blur="blur" 
-      @input="val"
-      @change="val"
+      @input="valChange"
+      @change="valChange"
       @focus="focusValue($event)" 
       ref="input">
     <transition name="label-fade">
@@ -119,15 +119,11 @@ export default {
     },
     bigTips:Boolean,
     position:String,
-    // maxNum: {//最大金额限制
-    //   type: [Number,String],
-    //   default: Infinity,
-    // },
-    // minNum: {//最小金额限制
-    //   type: [Number,String],
-    //   default: -Infinity,
-    // },
     divided: {//是否添加分隔符
+      type: Boolean,
+      default: false,
+    },
+    immeDivided: {//是否添加分隔符
       type: Boolean,
       default: false,
     },
@@ -202,8 +198,8 @@ export default {
       }
       let val = this.inputValue?this.inputValue.trim():this.inputValue;
       if (val && val!="") {
-        val = this.notFormat?e.target.value:this.formatNum(e.target.value);
-        if (this.divided && this.type=="money") {
+        val = this.notFormat?e.target.value:this.formatNum(e.target.value.trim().replace(/,/g,''));
+        if ((this.divided || this.immeDivided) && this.type=="money") {
           this.inputValue = this.divideNum(val);
         }else{
           this.inputValue = val;
@@ -230,10 +226,14 @@ export default {
           this.inputValue='';
           e.target.value='';
         }else{
-          if (this.notFillin&&this.inputValue) {
+          if (this.notFillin&&this.inputValue&&!this.immeDivided&&!this.divided) {
             this.inputValue = String(parseFloat(this.inputValue));
           }
-          this.currentValue = this.inputValue?this.inputValue.trim().replace(/,/g, ""):this.inputValue;
+          if(!this.immeDivided){
+            this.currentValue = this.inputValue?this.inputValue.trim().replace(/,/g, ""):this.inputValue;
+          }else{
+            this.currentValue = this.inputValue;
+          }
           this.inputValue = this.currentValue;
         }
       }
@@ -246,17 +246,21 @@ export default {
     focus(){
       this.$refs.input.focus()
     },
-    val (event) {
-      let value = event.target.value.trim();
+    valChange (event) {
+      let value = event.target.value.trim().replace(/,/g,'');
       // if (event.type == 'input' && value.match(/^\-?\.?$|\.$/)) return; // prevent fire early if decimal. If no more input the change event will fire later
       // if (event.type == 'change' && Number(value) == this.currentValue) return; // already fired change for input event 
-      if (!isNaN(value)) {
+      if (!isNaN(value) || value=='-') {
         this.currentValue = value;
       } else {
         event.target.value = this.currentValue;
         value = this.currentValue;
       }
-      this.inputValue = value;
+      if(!this.immeDivided){
+        this.inputValue = value;
+      }else{
+        this.inputValue = this.divideNum(value);
+      }
       this.bigShow(this.type,value);
       this.$emit('input', value);
       this.$emit('on-keyup', value);
@@ -308,24 +312,62 @@ export default {
         if (firstChar=='-') {
           value = value.substring(1)||'';
         }
-        value=value.replace("-", "")
-        value = this.cutNum(value,this.integerNum);
-        if (value=='') return;
-
-        if (this.isround) {
-          value = Number(value).toFixed(suffixNum);
-        }else {
-          value = this.fillZero(value,Number(suffixNum))
-        }
-        value = this.setNum(value,suffixNum,integerNum)
-        if (firstChar=='-') {
-          value = '-'+value;
-        }
-        if (value.substring(value.length-1,value.length)=='.') {
-          value = value.substring(0,value.length-1);
+        var valArr = value.split(".");
+        var intLength = valArr.length>0?valArr[0].length:value;
+        if (integerNum<16 || intLength<16) {
+          value=value.replace("-", "")
+          value = this.cutNum(value,this.integerNum);
+          if (value=='') return;
+          if (this.isround) {
+            value = Number(value).toFixed(suffixNum);
+          }else {
+            value = this.fillZero(value,Number(suffixNum))
+          }
+          value = this.setNum(value,suffixNum,integerNum)
+          if (firstChar=='-') {
+            value = '-'+value;
+          }
+          if (value.substring(value.length-1,value.length)=='.') {
+            value = value.substring(0,value.length-1);
+          }
+        }else{
+          value = this.setBigData(value,valArr);
+          if (firstChar=='-') {
+            value = '-'+value;
+          }
         }
       }
       return value
+    },
+    setBigData(value,arr){
+      let curInt,curSuffix,val1,val2;
+      let isCarry=false;
+      if(arr.length>0){
+        curInt = arr[0].substr(0,this.integerNum);
+        curSuffix = arr[1];
+      }else{
+        curInt = value;
+      }
+      val1 = curInt.slice(0,8);
+      val2 = curInt.slice(8);
+      let curVal2 =curSuffix?val2+'.'+curSuffix:val2;
+      if(this.isround){
+        curVal2 = Number(curVal2).toFixed(this.suffixNum);
+      }else{
+        curVal2 = this.fillZero(curVal2,Number(this.suffixNum))
+        if(this.suffixNum>0){
+          var arrNum=curVal2.split(".");
+          curVal2 = arrNum[0]+'.'+arrNum[1].substring(0,this.suffixNum);
+        }
+      }
+      let arr2 = curVal2.split('.');
+      if((arr2.length>0 && arr2[0].length>val2.length)||(arr2.length==0&&curVal2.length>val2.length)){
+        isCarry = true;
+        curVal2 = curVal2.slice(1);
+      }
+      val1 = isCarry?Number(val1)+1:val1;
+      value = val1+curVal2;
+      return value;
     },
     numtochinese (Num,suffixNumber) {
       for (var i = Num.length - 1; i >= 0; i--) {
@@ -608,6 +650,8 @@ export default {
         this.inputValue=this.setNullStr();
       }else{
         if (val && this.divided && this.type=='money'&&!this.havefocused) {
+          this.inputValue = this.divideNum(val);
+        }else if(this.immeDivided&&val&&this.type=='money'){
           this.inputValue = this.divideNum(val);
         }else{
           this.inputValue = val;

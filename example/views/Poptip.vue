@@ -2,44 +2,44 @@
   <div>
     <h1>气泡提示组件基本用法</h1>
     <h2>基本用法</h2>
-    <h-poptip trigger="hover" title="提示标题" content="提示内容">
+    <h-poptip trigger="hover" title="提示标题" content="提示内容" closeOutClick>
       <h-button>hover 激活</h-button>
     </h-poptip>
-    <h-poptip title="提示标题" content="提示内容">
+    <h-poptip title="悬浮/点击出现的消息" content="悬浮出现的消息气泡气泡气泡气泡">
       <h-button>click 激活</h-button>
     </h-poptip>
-    <h-poptip trigger="focus" title="提示标题" content="提示内容">
+    <h-poptip trigger="focus" title="悬浮/点击出现的消息" content="悬浮出现的消息气泡气泡气泡气泡">
       <h-button>focus 激活</h-button>
     </h-poptip>
-    <h-poptip trigger="focus" title="提示标题" content="提示内容">
+    <h-poptip trigger="focus" title="悬浮/点击出现的消息" content="悬浮出现的消息气泡气泡气泡">
       <h-input placeholder="输入框的 focus"></h-input>
     </h-poptip>
     <h2>位置</h2>
     <div class="top">
-      <h-poptip title="提示标题" content="提示内容" placement="top-start">
+      <h-poptip title="提示标题" content="提示内容" placement="top-start" closeOutClick>
         <h-button>上左</h-button>
       </h-poptip>
-      <h-poptip title="提示标题" content="提示内容" placement="top">
+      <h-poptip title="悬浮/点击出现的消息" content="悬浮出现的消息气泡气泡气泡" placement="top">
         <h-button>上边</h-button>
       </h-poptip>
-      <h-poptip title="提示标题" content="提示内容" placement="top-end">
+      <h-poptip title="悬浮/点击出现的消息" content="悬浮出现的消息气泡气泡气泡" placement="top-end">
         <h-button>上右</h-button>
       </h-poptip>
     </div>
     <div class="center">
       <div class="center-left">
-        <h-poptip title="提示标题" content="提示内容" placement="left-start">
+        <h-poptip title="悬浮/点击出现的消息" content="悬浮出现的消息气泡气泡气泡" placement="left-start">
             <h-button>左上</h-button>
         </h-poptip><br><br>
-        <h-poptip title="提示标题" content="提示内容" placement="left">
+        <h-poptip title="悬浮/点击出现的消息" content="悬浮出现的消息气泡气泡气泡" placement="left">
             <h-button>左边</h-button>
         </h-poptip><br><br>
-        <h-poptip title="提示标题" content="提示内容" placement="left-end">
+        <h-poptip title="悬浮/点击出现的消息" content="悬浮出现的消息气泡气泡气泡" placement="left-end">
             <h-button>左下</h-button>
         </h-poptip>
       </div>
       <div class="center-right">
-        <h-poptip trigger="hover" title="提示标题" placement="right-start" width="100">
+        <h-poptip trigger="hover" title="悬浮/点击出现的消息" placement="right-start" width="100">
           <h-button>右上</h-button>
           <div class="smenu" slot="content">
             <ul>
@@ -50,22 +50,22 @@
             </ul>
           </div>
         </h-poptip><br><br>
-        <h-poptip title="提示标题" content="提示内容" placement="right">
+        <h-poptip title="悬浮/点击出现的消息" content="悬浮出现的消息气泡气泡气泡" placement="right">
           <h-button>右边</h-button>
         </h-poptip><br><br>
-        <h-poptip title="提示标题" content="提示内容" placement="right-end">
+        <h-poptip title="悬浮/点击出现的消息" content="悬浮出现的消息气泡气泡气泡" placement="right-end">
           <h-button>右下</h-button>
         </h-poptip>
       </div>
     </div>
     <div class="bottom">
-      <h-poptip title="提示标题" content="提示内容" placement="bottom-start">
+      <h-poptip title="悬浮/点击出现的消息" content="悬浮出现的消息气泡气泡气泡" placement="bottom-start">
         <h-button>下左</h-button>
       </h-poptip>
-      <h-poptip title="提示标题" content="提示内容" placement="bottom">
+      <h-poptip title="悬浮/点击出现的消息" content="悬浮出现的消息气泡气泡气泡" placement="bottom">
         <h-button>下边</h-button>
       </h-poptip>
-      <h-poptip title="提示标题" content="提示内容" placement="bottom-end">
+      <h-poptip title="悬浮/点击出现的消息" content="悬浮出现的消息气泡气泡气泡" placement="bottom-end">
         <h-button>下右</h-button>
       </h-poptip>
     </div>

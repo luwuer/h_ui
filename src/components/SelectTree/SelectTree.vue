@@ -8,7 +8,7 @@
       @keyup="keyup" 
       @keydown="keydown">
       <!-- 多选时输入框内选中值模拟 -->
-      <div class="h-tag" v-for="(item, index) in selectedMultiple">
+      <div class="h-tag" v-for="(item, index) in selectedMultiple" :key="index">
         <span class="h-tag-text">{{ item }}</span>
         <!-- <Icon name="close" @click.native.stop="removeTag(index)"></Icon>  -->
       </div>
@@ -34,18 +34,18 @@
       <!-- 单选时清空按钮 -->
       <Icon name="close" :class="[prefixCls + '-arrow']" v-show="showCloseIcon" @click.native.stop="clearSingleSelect"
       ref="close"></Icon>
-      <Icon name="arrowdownb" :class="[prefixCls + '-arrow']" ref="arrowb" v-if="!remote"></Icon>
+      <Icon name="unfold" :class="[prefixCls + '-arrow']" ref="arrowb" v-if="!remote"></Icon>
     </div>
     <transition :name="transitionName">
       <Drop v-show="dropVisible" 
-        :placement="placement" 
+        :placement="fPlacement" 
         :dropWidth="dropWidth"
         :class="dropdownCls"
         :data-transfer="transfer" 
         ref="dropdown"
         v-transfer-dom>
         <!--  <ul v-show="notFountShow" :class="[prefixCls + '-not-found']"><li>{{ localeNotFoundText }}</li></ul> -->
-        <div :class="[prefixCls + '-dropdown-content']" ref="content">
+        <div :class="[prefixCls + '-dropdown-content']" ref="content" @click="handleclick">
           <div :class="searchClass" ref='search' v-if="filterable && showBottom">
             <input
                 type="text"
@@ -63,9 +63,9 @@
                 ref="input">
           </div>
           <div class="h-selectTree-dropdown-list" ref="list" :style="listStyle"> 
-            <Tree ref="tree" :data="baseDate" :show-checkbox="showCheckbox" :multiple="multiple" :checkStrictly="checkStrictly" :showIndeterminate="showIndeterminate" @on-select-change="selectChange" @on-check-change="checkChange" @on-toggle-expand="toggleExpand" v-show="remote && !loading || !remote">
+            <Tree ref="tree" :data="baseDate" :show-checkbox="showCheckbox" :multiple="multiple" :checkStrictly="checkStrictly" :showIndeterminate="!checkIndeter" @on-select-change="selectChange" @on-check-change="checkChange" @on-toggle-expand="toggleExpand" v-show="remote && !loading || !remote" isFormSelect>
             
-          </Tree>
+            </Tree>
           </div>
           <!-- 远程搜索loading -->
           <ul v-show="loading" :class="[prefixCls + '-loading']">{{ localeLoadingText }}</ul>
@@ -139,7 +139,7 @@
       },
       placement: {
         validator (value) {
-            return oneOf(value, ['top', 'bottom']);
+            return oneOf(value, ['top', 'top-start', 'top-end', 'bottom', 'bottom-start', 'bottom-end', 'left', 'left-start', 'left-end', 'right', 'right-start', 'right-end']);
         },
         default: 'bottom'
       },
@@ -209,6 +209,10 @@
       onlyChild:{
         type:Boolean,
         default:false,
+      },
+      checkIndeter:{//显示半选中状态，并选中
+        type:Boolean,
+        default:false
       }
     },
     data(){
@@ -228,7 +232,8 @@
         baseDate:[],
         tabIndex:0,
         lastquery: '',
-        lastDataCopy: []
+        lastDataCopy: [],
+        fPlacement:this.placement
       }
     },
     computed:{
@@ -326,7 +331,9 @@
           return this.visible && status;
       },
       transitionName () {
-          return this.placement === 'bottom' ? 'slide-up' : 'slide-down';
+        const bottomPlaced = this.fPlacement.match(/^bottom/);
+        return bottomPlaced ? 'slide-up' : 'slide-down';
+          // return this.placement === 'bottom' ? 'slide-up' : 'slide-down';
       },
       multiplestyle () {
         return {
@@ -335,6 +342,9 @@
       }
     },
     methods:{
+      handleclick(e){
+        e.stopPropagation();
+      },
       keyup(event){
         if (this.disabled || this.readonly||!this.editable) {
           return false;
@@ -419,22 +429,27 @@
               arr.push(item.title);
               arrModel.push(item[strModel]);
             }
-          }else{
+          }else {
             arr.push(item.title);
             arrModel.push(item[strModel]);
           }
-        })
+        });
+        if(this.checkIndeter && !this.checkStrictly){
+          let interArr = this.$refs.tree.getIndeterminateNodes();
+          interArr.forEach((ite)=>{
+            arr.push(ite.title);
+            arrModel.push(ite[strModel]);
+          })
+        }
         this.model=arrModel;
         this.selectedMultiple=arr;
         this.$emit('on-check-change', val);
-        // this.$nextTick(()=>{
-        //   this.offsetArrow();
-        // });
       },
       toggleExpand(val){
         this.$emit('on-toggle-expand', val);
       },
       clearSingleSelect () {
+        let _this = this;
         if (this.disabled || this.readonly || !this.editable) return false;
         if (this.showCloseIcon) {
           resetDate(this.baseDate);
@@ -449,19 +464,19 @@
             this.findQuery(this.baseDate,'');
           }
           if (this.remote) {
-            this.lastquery = ''
+            this.lastquery = '';
           }
         }
         function resetDate(data) {
           data.forEach((col,i)=>{
             if (!!col.checked) {
-              col.checked = false;
+              _this.$set(col,'checked',false)
             }
             if(!!col.selected){
-              col.selected = false;
+              _this.$set(col,'selected',false)
             }
             if(!!col.indeterminate){
-              col.indeterminate = false;
+              _this.$set(col,'indeterminate',false)
             }
             if (col.children && col.children.length>0) {
               resetDate(col.children);
@@ -469,8 +484,7 @@
           });
         }
       },
-      handleFocus(){
-        // this.query = '';
+      handleFocus(e){
       },
       handleBlur () {
       },
@@ -484,7 +498,6 @@
         }
       },
       findQuery(data,val){
-        // debugger
         var that = this;
         data.forEach((col,i)=>{
           that.$set(col, 'filterable', false);
@@ -495,19 +508,6 @@
             this.findQuery(col.children,val);
           }
         });
-        this.$nextTick(()=>{
-            let firstItem = this.$refs.tree.$el.querySelectorAll('.h-tree-title-filterable')[0];
-            if (firstItem) {
-              let top = firstItem.offsetTop;
-              if (this.showBottom) {
-                top = top -30;
-              }
-              scrollAnimate(this.$refs.list,this.$refs.list.scrollTop,top)
-
-            }else{
-              scrollAnimate(this.$refs.list,this.$refs.list.scrollTop,0)
-            }
-          });
       },
       handleInputDelete () {
         if (this.multiple && this.model.length && this.query === '') {
@@ -552,8 +552,18 @@
         let _this = this;
         function findDown(tdata,curValue){
           tdata.forEach((item)=>{
-            if (item[_this.formatValue] == curValue) {
+            ['expand','disabled','disableCheckbox','selected','checked'].forEach(col=>{
+              if(item[col]&&item[col]=='false'){
+                item[col] =false;
+              }
+              if(item[col]&&item[col]=='true'){
+                item[col] =true;
+              }
+            });
+            if ((typeOf(curValue) == 'string'||typeOf(curValue) == 'number')&&item[_this.formatValue] == curValue) {
               _this.$set(item,'selected',true);
+            }else if(typeOf(curValue) == 'array'&&curValue.indexOf(item[_this.formatValue])!=-1){
+              _this.$set(item,'checked',true);
             }else{
               _this.$set(item,'selected',false);
               _this.$set(item,'checked',false);
@@ -565,8 +575,12 @@
         }
         findDown(data,value);
         this.$nextTick(()=>{
-          let tree = this.$refs.tree;     
-          this.selectChange(tree.getSelectedNodes());
+          let tree = this.$refs.tree;   
+          if (typeOf(value) == 'string'||typeOf(value) == 'number') {
+            this.selectChange(tree.getSelectedNodes());
+          }else{
+            this.checkChange(tree.getCheckedNodes());
+          }  
         });
       },
       expandLevels(data){
@@ -595,7 +609,7 @@
         }
       },
       focus(){
-        if (this.disabled) return;
+        if (this.disabled || this.readonly) return;
         this.$nextTick(()=>{
           this.visible = true;
           if (this.filterable) {
@@ -630,10 +644,23 @@
       },
       query (val) {
         let query = val || this.lastquery
-      //  query改变时触发remote，兼容check选中后（lastquery有值）重复触发
+        //  query改变时触发remote，兼容check选中后（lastquery有值）重复触发
         if (this.remote && this.remoteMethod && (!this.model || this.model.length == 0)) {
           this.remoteMethod(query)
         }
+        this.$nextTick(()=>{
+          let firstItem = this.$refs.tree.$el.querySelectorAll('.h-tree-title-filterable')[0];
+          if (firstItem && this.dropVisible) {
+            let top = firstItem.offsetTop;
+            if (this.showBottom) {
+              top = top -30;
+            }
+            this.$refs.list.scrollTop = top;
+            // scrollAnimate(this.$refs.list,this.$refs.list.scrollTop,top)
+          }else{
+            this.$refs.list.scrollTop = 0;
+          }
+        });
       },
       model () {  
         let backModel = this.arrtoStr(this.model);   
@@ -676,7 +703,7 @@
               }
             }
           }
-          this.broadcast('Drop', 'on-destroy-popper');
+          // this.broadcast('Drop', 'on-destroy-popper');
         }
       },
       data : {
@@ -688,6 +715,9 @@
             this.baseDate =deepCopy(cur);
           }
         }
+      },
+      placement(val){
+        this.fPlacement = val
       }
     },
     mounted(){
@@ -709,6 +739,10 @@
         this.tabIndex = -1;
       }
 
+    },
+    beforeDestroy(){
+      document.removeEventListener('keydown', this.handleKeydown);
+      this.broadcast('Drop', 'on-destroy-popper');
     }
   }
 </script>

@@ -4,7 +4,8 @@ $fastdate-prefix-cls: "#{$css-prefix}fast-date";
   &-wrapper{
     width:100%;
     display: inline-block;
-    vertical-align: middle
+    vertical-align: middle;
+    height: $form-component-height;
   }
   &-inner{
     position: relative;

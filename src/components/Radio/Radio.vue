@@ -1,5 +1,5 @@
 <template>
-  <label :class="wrapClasses">
+  <label :class="wrapClasses" @click="radioClick">
     <span :class="radioClasses">
       <span :class="innerClasses"></span>
       <input
@@ -54,6 +54,13 @@
       };
     },
     computed: {
+      showBtnIcon () {
+        if (this.parent.type == 'button' && !!this.parent.btnIcon && this.parent.btnIconOnlyChecked) {
+          return this.currentValue
+        } else {
+          return !!this.parent.btnIcon && this.parent.type == 'button'
+        }
+      },
       wrapClasses () {
         return [
           `${prefixCls}-wrapper`,
@@ -70,7 +77,8 @@
           `${prefixCls}`,
           {
             [`${prefixCls}-checked`]: this.currentValue,
-            [`${prefixCls}-disabled`]: this.disabled
+            [`${prefixCls}-disabled`]: this.disabled,
+            [`${prefixCls}-btnIcon`]: this.showBtnIcon
           }
         ];
       },
@@ -111,6 +119,9 @@
           this.$emit('on-change', value);
           this.dispatch('FormItem', 'on-form-change', value);
         }
+      },
+      radioClick(){
+        this.$emit('on-click')
       },
       updateValue () {
         this.currentValue = this.value === this.trueValue;

@@ -1,5 +1,5 @@
 <template>
-  <div :class="classes">
+  <div :class="classes" @click="groupClick">
     <slot></slot>
   </div>
 </template>
@@ -28,6 +28,14 @@
         }
       },
       vertical: {
+        type: Boolean,
+        default: false
+      },
+      btnIcon: {
+        type: Boolean,
+        default: false
+      },
+      btnIconOnlyChecked: {
         type: Boolean,
         default: false
       }
@@ -72,6 +80,9 @@
         this.$emit('input', data.value);
         this.$emit('on-change', data.value);
         this.dispatch('FormItem', 'on-form-change', data.value);
+      },
+      groupClick(){
+        this.$emit('on-click');
       }
     },
     watch: {

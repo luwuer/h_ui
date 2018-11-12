@@ -2,17 +2,17 @@
     <div :class="classes">
         <div :class="[prefixCls+ '-list']" ref="hours">
             <ul :class="[prefixCls + '-ul']">
-                <li :class="getCellCls(item)" v-for="item in hoursList" v-show="!item.hide" @click="handleClick('hours', item)">{{ formatTime(item.text) }}</li>
+                <li :class="getCellCls(item)" v-for="(item,index) in hoursList" :key="index" v-show="!item.hide" @click="handleClick('hours', item)">{{ formatTime(item.text) }}</li>
             </ul>
         </div>
         <div :class="[prefixCls+ '-list']" ref="minutes">
             <ul :class="[prefixCls + '-ul']">
-                <li :class="getCellCls(item)" v-for="item in minutesList" v-show="!item.hide" @click="handleClick('minutes', item)">{{ formatTime(item.text) }}</li>
+                <li :class="getCellCls(item)" v-for="(item,index) in minutesList" :key="index" v-show="!item.hide" @click="handleClick('minutes', item)">{{ formatTime(item.text) }}</li>
             </ul>
         </div>
         <div :class="[prefixCls+ '-list']" v-show="showSeconds" ref="seconds">
             <ul :class="[prefixCls + '-ul']">
-                <li :class="getCellCls(item)" v-for="item in secondsList" v-show="!item.hide" @click="handleClick('seconds', item)">{{ formatTime(item.text) }}</li>
+                <li :class="getCellCls(item)" v-for="(item,index) in secondsList" :key="index" v-show="!item.hide" @click="handleClick('seconds', item)">{{ formatTime(item.text) }}</li>
             </ul>
         </div>
     </div>
@@ -27,15 +27,15 @@
         mixins: [Options],
         props: {
             hours: {
-                type: [Number, String],
+                type: [Number, String,Boolean],
                 default: 0
             },
             minutes: {
-                type: [Number, String],
+                type: [Number, String,Boolean],
                 default: 0
             },
             seconds: {
-                type: [Number, String],
+                type: [Number, String,Boolean],
                 default: 0
             },
             showSeconds: {

@@ -1,13 +1,13 @@
 <template>
-  <div :class="[prefixCls]" @mouseenter="handleShowPopper" @mouseleave="handleClosePopper">
-    <div :class="[prefixCls + '-rel']" ref="reference">
+  <div :class="[prefixCls]">
+    <div :class="[prefixCls + '-rel']" ref="reference" @mouseenter="handleShowPopper" @mouseleave="handleClosePopper">
       <slot></slot>
     </div>
     <transition name="fade">
       <div :class="[prefixCls + '-popper']" 
         ref="popper" 
         v-show="!disabled && (visible || always)"
-        @mouseenter="handleShowPopper"
+        @mouseenter="handleShowPopper($event,true)"
         @mouseleave="handleClosePopper"
         :data-transfer="transfer"
         v-transfer-dom>
@@ -60,6 +60,10 @@
       transfer: {
         type: Boolean,
         default: false
+      },
+      imdiaClose:{
+        type: Boolean,
+        default: false
       }
     },
     data () {
@@ -68,7 +72,8 @@
       };
     },
     methods: {
-      handleShowPopper() {
+      handleShowPopper(event,status=false) {
+        if(this.imdiaClose&&status)return;
         if (this.timeout) clearTimeout(this.timeout);
         this.timeout = setTimeout(() => {
             this.visible = true;
@@ -89,6 +94,9 @@
       if (this.always) {
         this.updatePopper();
       }
+    },
+    beforeDestroy(){
+      // this.destroyPopper();
     }
   };
 </script>

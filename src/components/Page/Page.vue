@@ -29,6 +29,13 @@
         <slot>{{ t('i.page.total') }} {{ total }} <template v-if="total <= 1">{{ t('i.page.item') }}</template><template v-else>{{ t('i.page.items') }}</template></slot>
       </span>
       <li
+        v-if="fastArrival"
+        :title="t('i.page.first')"
+        :class="prevClasses"
+        @click="toFirst">
+        <a><icon name="arrow-l"></icon></a>
+      </li>
+      <li
         :title="t('i.page.prev')"
         :class="prevClasses"
         @click="prev">
@@ -49,12 +56,20 @@
         @click="next">
         <a><icon name="enter"></icon></a>
       </li>
+      <li
+        v-if="fastArrival"
+        :title="t('i.page.last')"
+        :class="nextClasses"
+        @click="toLast">
+        <a><icon name="arrow-r"></icon></a>
+      </li>
       <Options
         :show-sizer="showSizer"
         :page-size="currentPageSize"
         :page-size-opts="pageSizeOpts"
         :placement="placement"
         :show-elevator="showElevator"
+        :show-custom="showCustom"
         :current="currentPage"
         :all-pages="allPages"
         :is-small="isSmall"
@@ -122,6 +137,10 @@
         type: Boolean,
         default: false
       },
+      showCustom:{
+        type: Boolean,
+        default: false
+      },
       className: {
         type: String
       },
@@ -129,6 +148,10 @@
         type: Object
       },
       isBlur:{
+        type: Boolean,
+        default: false
+      },
+      fastArrival:{
         type: Boolean,
         default: false
       }
@@ -313,6 +336,12 @@
             page = val;
         }
         e.target.value = page;
+      },
+      toFirst(){
+        this.changePage(1);
+      },
+      toLast(){
+        this.changePage(this.allPages);
       }
     },
     mounted(){

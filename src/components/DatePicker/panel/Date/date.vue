@@ -43,6 +43,7 @@
                     @on-pick-click="handlePickClick"
                 ></component>
             </div>
+            
             <div :class="[prefixCls + '-content']" v-show="isTime">
                 <time-picker
                     ref="timePicker"

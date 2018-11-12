@@ -19,6 +19,9 @@ $uploaded-prefix-cls: "#{$upload-prefix-cls}-uploaded";
       & > span{
         cursor: pointer;
         transition: color $transition-time $ease-in-out;
+        > i{
+          margin-right: 8px;
+        }
         i{
           display: inline-block;
           width: $font-size-small;
@@ -29,7 +32,8 @@ $uploaded-prefix-cls: "#{$upload-prefix-cls}-uploaded";
       }
 
       &:hover{
-        background: $input-disabled-bg;
+        // background: $input-disabled-bg;
+        background: #EAF5FF;
         & > span{
           color: $primary-color;
           i{
@@ -56,8 +60,8 @@ $uploaded-prefix-cls: "#{$upload-prefix-cls}-uploaded";
   }
 
   &-drag{
-    background: #fff;
-    border: 1px dashed $border-color-base;
+    background: #F7F7F7 ;
+    border: 1px dashed #D7DDE4;
     border-radius: $border-radius-small;
     text-align: center;
     cursor: pointer;

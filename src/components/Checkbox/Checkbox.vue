@@ -113,7 +113,7 @@
     methods: {
       change (event) {
           if (this.disabled) {
-              return false;
+            return false;
           }
 
           const checked = event.target.checked;
@@ -121,7 +121,6 @@
 
           let value = checked ? this.trueValue : this.falseValue;
           this.$emit('input', value);
-
           if (this.group) {
               this.parent.change(this.model);
           } else {

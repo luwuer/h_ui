@@ -1,7 +1,7 @@
 <template>
   <li :class="classes" @click.stop="select" @mouseout.stop="blur" v-show="!hidden">
-    <checkbox v-show="multiple" v-model="selected" :disabled="disabled" @on-change="checkChange"></checkbox>
-    <slot>{{ showLabel }}</slot>
+    <checkbox v-show="multiple&&!hideMult" v-model="selected" @click.native.stop="handleclick" :disabled="disabled" @on-change="checkChange"></checkbox>
+    <slot>{{showLabel}}</slot>
   </li>
 </template>
 <script>
@@ -35,7 +35,8 @@
         isFocus: false,
         hidden: false,
         searchLabel: '',
-        multiple:false
+        multiple:false,
+        hideMult:false,
       };
     },
     computed: {
@@ -45,7 +46,7 @@
           {
             [`${prefixCls}-disabled`]: this.disabled,
             [`${prefixCls}-selected`]: this.selected,
-            [`${prefixCls}-focus`]: this.isFocus
+            [`${prefixCls}-focus`]: this.isFocus,
           }
         ];
       },
@@ -55,7 +56,7 @@
     },
     methods: {
       select () {
-        if (this.disabled||this.multiple) {
+        if (this.disabled) {
           return false;
         }
         this.dispatch('Select', 'on-select-selected', this.value);
@@ -69,11 +70,14 @@
       queryChange (val) {
         const parsedQuery = val.replace(/(\^|\(|\)|\[|\]|\$|\*|\+|\.|\?|\\|\{|\}|\|)/g, '\\$1');
         this.hidden = !new RegExp(parsedQuery, 'i').test(this.searchLabel);
+      },
+      handleclick(){ 
       }
     },
     mounted () {
-      var str=this.$el.innerHTML
-      this.searchLabel =str.slice(Number(str.indexOf('</label>')+8));
+      var str=this.$el.innerText
+      this.searchLabel = str.replace('false','').replace('true','').trim();
+      // this.searchLabel =str.slice(Number(str.indexOf('</label>')+9));
       this.dispatch('Select', 'append');
       this.$on('on-select-close', () => {
         this.isFocus = false;
@@ -81,8 +85,12 @@
       this.$on('on-query-change', (val) => {
         this.queryChange(val);
       });
-      let el = this.$parent.$parent.$el;
-      this.multiple=hasClass(el,'h-select-multiple')?true:false;
+      let obj = this.$parent.$parent;
+      if (!hasClass(obj.$el,'h-select')) {
+        obj = this.$parent.$parent.$parent;
+      }
+      this.multiple=obj.multiple;
+      this.hideMult=obj.hideMult;
     },
     destroyed () {
       this.dispatch('Select', 'remove');

@@ -38,14 +38,20 @@ export default {
     cols: {
         type: [String, Number]
     },
-    readonly:{
-        type:Boolean,
-        default:false,
+    placement:{
+      validator (value) {
+        return oneOf(value, ['null','top', 'top-start', 'top-end', 'bottom', 'bottom-start', 'bottom-end', 'left', 'left-start', 'left-end', 'right', 'right-start', 'right-end']);
+      },
+      default: 'null'
     },
     errorFocus:{
       type:Boolean,
       default:false,
-    }
+    },
+    labelWrap: {
+      type: Boolean,
+      default: null
+    },
 
   },
   data () {
@@ -82,6 +88,10 @@ export default {
         if (field.$children && field.$children.length > 0) {
           for(let fidleChild of field.$children) {
             if (fidleChild.disabled) {
+              // ++count;
+              if(++count === this.fields.length){
+                callback(valid);
+              }
               return ;
             }
           }
@@ -90,14 +100,14 @@ export default {
           if (errors) {
             valid = false;
           }
-          // if (typeof callback === 'function' && ++count === this.fields.length) {
-          //     callback(valid);
-          // }
+          if (typeof callback === 'function' && ++count === this.fields.length) {
+              callback(valid);
+          }
         });
       });
-      if (typeof callback === 'function') {
-        callback(valid);
-      }
+      // if (typeof callback === 'function') {
+      //   callback(valid);
+      // }
       if (this.errorFocus) {
         this.$nextTick(()=>{
           for (var i = 0; i < this.fields.length ; i++) {
@@ -115,15 +125,13 @@ export default {
         if (!field) { throw new Error('[HUI warn]: must call validateField with valid prop string!'); }
         field.validate('', cb);
     },
-    setReadonly(){
+    setPlacement(){
       this.$nextTick(()=>{
         this.fields.forEach((field)=>{
           if (field.$children && field.$children.length > 0) {
             for(let fidleChild of field.$children) {
-              if (this.readonly) {
-                fidleChild.readonly = true;
-              }else{
-                fidleChild.readonly = fidleChild.readonly || false;
+              if (fidleChild.placement) {
+                fidleChild.fPlacement = this.placement;
               }
             }
           }
@@ -149,8 +157,9 @@ export default {
     rules() {
       this.validate();
     },
-    readonly(){
-      this.setReadonly();
+    placement(){
+      if(this.placement=='null') return;
+      this.setPlacement();
     },
     model:{
       deep:true,
@@ -170,7 +179,9 @@ export default {
     });
   },
   mounted(){
-    this.setReadonly();
+    if(this.placement!='null'){
+      this.setPlacement();
+    } 
   }
 };
 </script>
